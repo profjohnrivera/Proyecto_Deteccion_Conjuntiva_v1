@@ -1,0 +1,13 @@
+train: dataset/train/images
+val: dataset/val/images
+test: dataset/test/images
+
+nc: 2
+names: ['Anemia', 'Normal']
+
+roboflow:
+  workspace: diabetic-prediction-by-tongue-image-classification
+  project: anemia-detection-u0dhr-rzmdb
+  version: 6
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/diabetic-prediction-by-tongue-image-classification/anemia-detection-u0dhr-rzmdb/dataset/6
