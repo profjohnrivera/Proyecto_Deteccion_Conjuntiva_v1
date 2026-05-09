@@ -1,760 +1,912 @@
-# Informe – Semana 13
+# Sistema de Detección de Anemia mediante Análisis de Conjuntiva Palpebral con YOLOv8n y EfficientNet-B0
 
-Sprint 1 – Hasta Modelo Baseline
+**Proyecto de tesis:** Sistema computacional para análisis de imágenes de conjuntiva palpebral inferior y clasificación binaria `Anemia` / `Normal`  
+**Autores:** John Rivera, Manuel Cochachin  
+**Línea de investigación:** Visión por computadora aplicada al procesamiento de imágenes biomédicas  
+**Dataset base:** Anemia Detection v6 — Roboflow Universe  
+**Notebook principal:** `cp_v2_semana5_pipeline_FINAL.ipynb`  
+**Modelos utilizados:** YOLOv8n + EfficientNet-B0  
+**Lenguaje:** Python 3.10  
+**Frameworks principales:** PyTorch, Torchvision, Ultralytics YOLO, Scikit-learn  
 
-**Proyecto:** Sistema de Detección de Anemia mediante Análisis de Conjuntiva Palpebral  
-**Fecha:** Enero 2026  
-**Versión Dataset:** Anemia Detection v6 (Roboflow)  
-**Autores:** John Rivera, Manuel Cochachin
+---
 
-# 1. Resumen Ejecutivo
+## Tabla de contenido
 
-### Objetivo del Sprint
+1. [Resumen del proyecto](#1-resumen-del-proyecto)
+2. [Objetivos](#2-objetivos)
+3. [Integrantes y responsabilidades](#3-integrantes-y-responsabilidades)
+4. [Tareas resueltas](#4-tareas-resueltas)
+5. [Fuente de datos](#5-fuente-de-datos)
+6. [Estructura del dataset procesado](#6-estructura-del-dataset-procesado)
+7. [Arquitectura general del pipeline](#7-arquitectura-general-del-pipeline)
+8. [Notebook principal](#8-notebook-principal)
+9. [Estructura recomendada del repositorio](#9-estructura-recomendada-del-repositorio)
+10. [Entorno de ejecución](#10-entorno-de-ejecución)
+11. [Instalación](#11-instalación)
+12. [Ejecución](#12-ejecución)
+13. [Configuración central](#13-configuración-central)
+14. [Preprocesamiento y transformación de imágenes](#14-preprocesamiento-y-transformación-de-imágenes)
+15. [Modelo detector de región de interés](#15-modelo-detector-de-región-de-interés)
+16. [Modelo clasificador](#16-modelo-clasificador)
+17. [Calibración y umbral de decisión](#17-calibración-y-umbral-de-decisión)
+18. [Evaluación comparativa](#18-evaluación-comparativa)
+19. [Gráficas y evidencia visual](#19-gráficas-y-evidencia-visual)
+20. [Evaluación visual con carpeta testImage](#20-evaluación-visual-con-carpeta-testimage)
+21. [Artefactos generados](#21-artefactos-generados)
+22. [Reproducibilidad](#22-reproducibilidad)
+23. [Inferencia individual](#23-inferencia-individual)
+24. [Archivos recomendados para GitHub](#24-archivos-recomendados-para-github)
+25. [Resultado consolidado](#25-resultado-consolidado)
+26. [Referencia rápida](#26-referencia-rápida)
 
-Desarrollar un sistema completo de detección automática de anemia mediante análisis de imágenes de la conjuntiva palpebral inferior, implementando tanto el detector de regiones de interés (YOLOv8) como el clasificador de anemia (EfficientNet-B0).
+---
 
-### Alcance Alcanzado
+## 1. Resumen del proyecto
 
-**✅ Completado al 100%**
+Este repositorio contiene la implementación de un pipeline de visión por computadora para procesar imágenes de conjuntiva palpebral inferior, localizar la región de interés y clasificar la muestra en dos clases: `Anemia` y `Normal`.
 
-- Pipeline de datos: Estructurado y validado (2,589 imágenes en formato YOLOv8)
+La solución integra dos componentes principales:
 
-- EDA: Análisis exploratorio completo con identificación de desbalance de clases
+| Componente | Modelo | Función dentro del sistema |
+|---|---|---|
+| Detector de región de interés | YOLOv8n | Localiza la zona de conjuntiva mediante bounding box. |
+| Clasificador visual | EfficientNet-B0 | Clasifica la imagen completa o el recorte ROI en `Anemia` / `Normal`. |
 
-- Modelo Baseline 1: YOLOv8n para detección de conjuntiva palpebral (detector de ROI)
+El pipeline implementa carga de datos, validación de estructura, auditoría de separación de subconjuntos, entrenamiento/carga de modelos, calibración de probabilidades, comparación de variantes, evaluación sobre conjunto `test` y generación de evidencia visual para revisión académica.
 
-- Modelo Baseline 2: EfficientNet-B0 para clasificación binaria (Anemia/Normal)
+---
 
-- Pipeline de Inferencia: Sistema integrado completo con umbral optimizado
+## 2. Objetivos
 
-- Evaluación: Métricas en test set, análisis ROC, curvas de calibración
+### Objetivo general
 
-- Interfaz Interactiva: Widgets para pruebas en tiempo real
+Desarrollar un sistema basado en visión por computadora para clasificar imágenes de conjuntiva palpebral inferior en las clases `Anemia` y `Normal`, integrando detección automática de región de interés mediante YOLOv8n y clasificación visual mediante EfficientNet-B0.
 
-### Hitos Principales
+### Objetivos específicos
 
-- Sistema dual detector+clasificador operativo
+1. Organizar el dataset en subconjuntos `train`, `val` y `test` bajo una estructura compatible con YOLOv8 y PyTorch.
+2. Validar la estructura del dataset, la correspondencia entre imágenes y etiquetas, y la disponibilidad del entorno de ejecución.
+3. Implementar una auditoría de separación de datos mediante identificador base de imagen.
+4. Entrenar o cargar un detector YOLOv8n para localizar la región de conjuntiva palpebral inferior.
+5. Implementar un clasificador EfficientNet-B0 para clasificación binaria de imágenes completas y recortes ROI.
+6. Comparar tres variantes de procesamiento: imagen completa, ROI desde etiqueta y ROI detectada por YOLO.
+7. Calibrar las probabilidades del clasificador y seleccionar el umbral de decisión usando validación.
+8. Consolidar métricas, matrices de confusión, predicciones de muestra, reportes y artefactos visuales.
 
-- Estrategias de balanceo de clases implementadas (WeightedRandomSampler + Class Weights)
+---
 
-- Análisis de umbrales óptimos para minimizar falsos positivos (60%/40%)
+## 3. Integrantes y responsabilidades
 
-- Documentación técnica completa en notebook ejecutable
+| Integrante | Rol principal en el proyecto |
+|---|---|
+| John Rivera | Implementación del pipeline, estructuración del dataset, entrenamiento/evaluación de modelos, consolidación de resultados y documentación técnica. |
+| Manuel Cochachin | Apoyo en configuración del entorno, validación de ejecución, revisión de métricas, organización del avance y documentación académica. |
 
-- Validación exhaustiva: 97.1% resultados aceptables en normales + 100% detección de anemias
+---
 
-# 2. Sprint Planning
+## 4. Tareas resueltas
 
-### Objetivo del Sprint
+Las tareas se reorganizan según el estado actual del notebook `cp_v2_semana5_pipeline_FINAL.ipynb`, evitando mezclar métricas de versiones anteriores con los resultados del pipeline vigente.
 
-Implementar un sistema end-to-end de detección de anemia mediante visión por computadora, desde la ingesta de datos hasta la inferencia con métricas de evaluación robustas.
+| ID | Tarea desarrollada | Responsable | Estado | Evidencia en el repositorio |
+|---:|---|---|---|---|
+| 1 | Definición del pipeline de ingesta y estructura de datos | John Rivera | Completado | `data_clean.yaml`, `dataset_clean/` |
+| 2 | Validación del entorno de ejecución y disponibilidad GPU/CUDA | Manuel Cochachin | Completado | Bloques de validación del notebook |
+| 3 | Instalación y uso de dependencias principales | Manuel Cochachin | Completado | `requirements.txt`, entorno `.venv` |
+| 4 | Preparación de dataset con formato YOLOv8 | John Rivera | Completado | `images/`, `labels/`, anotaciones `.txt` |
+| 5 | Auditoría de separación entre `train`, `val` y `test` | John Rivera | Completado | `split_leakage_audit.json` |
+| 6 | Implementación de transformaciones y normalización de imágenes | Manuel Cochachin | Completado | Transformaciones PyTorch del notebook |
+| 7 | Entrenamiento/carga del detector YOLOv8n para ROI | John Rivera | Completado | `runs/detect/week5_yolo_*/weights/best.pt` |
+| 8 | Implementación del clasificador EfficientNet-B0 | John Rivera | Completado | Clase `AnemiaClassifier` |
+| 9 | Evaluación Baseline con imagen completa | John Rivera | Completado | `artifacts/week5_pipeline/baseline_full/` |
+| 10 | Evaluación Var1 con ROI desde etiqueta | John Rivera | Completado | `artifacts/week5_pipeline/roi_gt/` |
+| 11 | Evaluación Var2 con ROI detectada por YOLO | Manuel Cochachin | Completado | `artifacts/week5_pipeline/yolo_e2e/` |
+| 12 | Calibración de probabilidades y selección de umbral | Manuel Cochachin | Completado | `calibration.json`, `threshold.json` |
+| 13 | Consolidación de métricas, matrices y reportes | John Rivera | Completado | `comparison_results.csv`, `formal_test_summary.md` |
+| 14 | Generación de evidencia visual para sustentación | John Rivera | Completado | `media/`, `manual_testImage_predictions/` |
+| 15 | Documentación final del repositorio para GitHub | John Rivera, Manuel Cochachin | Completado | `README.md` |
 
-### Historias de Usuario / Tareas Prioritarias
+---
 
-| ID  | Historia / Tarea                                  | Responsable      | Estado   |
-|-----|---------------------------------------------------|------------------|----------|
-| 1   | Definir pipeline de ingesta y estructura de datos | John Rivera      | ✅ Hecho |
-| 2   | Implementar verificación de entorno GPU/CUDA      | Manuel Cochachin | ✅ Hecho |
-| 3   | Instalar dependencias (Ultralytics, EfficientNet) | Manuel Cochachin | ✅ Hecho |
-| 4   | Entrenar YOLOv8n para detección de conjuntiva     | John Rivera      | ✅ Hecho |
-| 5   | Desarrollar dataset personalizado con clases YOLO | John Rivera      | ✅ Hecho |
-| 6   | Implementar aumentación de datos y balanceo       | Manuel Cochachin | ✅ Hecho |
-| 7   | Entrenar EfficientNet-B0 con técnicas de balanceo | John Rivera      | ✅ Hecho |
-| 8   | Desarrollar pipeline de inferencia integrado      | Manuel Cochachin | ✅ Hecho |
-| 9   | Implementar sistema de control de calidad         | John Rivera      | ✅ Hecho |
-| 10  | Corregir sesgo con umbrales asimétricos           | Manuel Cochachin | ✅ Hecho |
-| 11  | Crear interfaces interactivas con widgets         | John Rivera      | ✅ Hecho |
-| 12  | Evaluar métricas y validación con 34 normales     | Manuel Cochachin | ✅ Hecho |
-| 13  | Documentar sistema completo y generar informes    | John Rivera      | ✅ Hecho |
+## 5. Fuente de datos
 
-# 3. Data Pipeline Básico
+El proyecto utiliza como fuente base el conjunto de datos público:
 
-## Descripción
+| Campo | Detalle |
+|---|---|
+| Origen | Roboflow Universe |
+| Nombre del dataset | Anemia Detection v6 |
+| Fecha de exportación documentada | 3 de enero de 2026 |
+| Licencia reportada | CC BY 4.0 |
+| URL | `https://universe.roboflow.com/diabetic-prediction-by-tongue-image-classification/anemia-detection-u0dhr-rzmdb` |
+| Formato de anotación | YOLOv8 |
+| Clases | `Anemia`, `Normal` |
 
-### Fuente de Datos
-
-- Origen: Roboflow Universe - "Anemia Detection v6"
-
-- Fecha de exportación: 3 de enero de 2026
-
-- Licencia: CC BY 4.0
-
-- URL: https://universe.roboflow.com/diabetic-prediction-by-tongue-image-classification/anemia-detection-u0dhr-rzmdb
-
-**📊 Estadísticas del Dataset**
-
-| Total de Imágenes         | 2,589              |
-|---------------------------|--------------------|
-| Imágenes de Entrenamiento | 2,391 (92.3%)      |
-| Imágenes de Validación    | 130 (5.0%)         |
-| Imágenes de Test          | 68 (2.6%)          |
-| Formato de Anotaciones    | YOLOv8 (COCO)      |
-| Clases                    | 2 (Anemia, Normal) |
-| Aumentación Aplicada      | 3x por imagen      |
-
-### Formato
-
-- Tipo: Anotaciones en formato YOLOv8
-
-- Estructura de labels: class_id x_center y_center width height
-
-- Clases: 0 = Anemia, 1 = Normal
-
-### Distribución del Dataset
-
-| Split | Imágenes | Labels | Uso                                    |
-|-------|----------|--------|----------------------------------------|
-| Train | 2,391    | 2,391  | Entrenamiento de modelos               |
-| Val   | 130      | 130    | Validación y ajuste de hiperparámetros |
-| Test  | 68       | 68     | Evaluación final no vista              |
-| Total | 2,589    | 2,589  | Dataset completo                       |
-
-### Aumentación Aplicada (Roboflow)
-
-- Ajuste de exposición aleatorio: ±25%
-
-- 3 versiones por imagen fuente
-
-### Estructura de Carpetas
+Formato de etiqueta YOLO utilizado:
 
 ```text
+class_id x_center y_center width height
+```
+
+Clases del proyecto:
+
+| ID | Clase |
+|---:|---|
+| 0 | Anemia |
+| 1 | Normal |
+
+---
+
+## 6. Estructura del dataset procesado
+
+El notebook trabaja con el archivo:
+
+```text
+data_clean.yaml
+```
+
+Este archivo referencia la versión procesada del dataset:
+
+```text
+dataset_clean/train
+dataset_clean/val
+dataset_clean/test
+```
+
+Distribución registrada en el pipeline vigente:
+
+| Split | Imágenes | Uso dentro del pipeline |
+|---|---:|---|
+| Train | 2053 | Entrenamiento de YOLO y clasificadores. |
+| Validation | 251 | Validación, calibración y selección de umbral. |
+| Test | 285 | Evaluación final de desempeño. |
+| Total | 2589 | Total de imágenes procesadas. |
+
+Distribución del conjunto de entrenamiento para clasificación:
+
+| Clase | Imágenes en train |
+|---|---:|
+| Anemia | 1029 |
+| Normal | 1024 |
+
+### Limpieza y validaciones aplicadas
+
+| Proceso | Descripción |
+|---|---|
+| Validación de estructura | Verificación de carpetas `images/` y `labels/` por split. |
+| Correspondencia imagen/label | Comprobación de pares imagen-anotación en formato YOLO. |
+| Lectura de clases | Extracción de `class_id` desde archivos `.txt`. |
+| Conversión de imagen | Lectura en RGB para procesamiento con PyTorch. |
+| Redimensionamiento | Entrada uniforme de 224×224 para EfficientNet-B0. |
+| Auditoría por imagen base | Revisión de coincidencias entre splits considerando nombres con patrón `nombre.rf.hash.jpg`. |
+
+Resultado de auditoría de separación:
+
+| Comparación | Coincidencias detectadas |
+|---|---:|
+| Train vs Validation | 0 |
+| Train vs Test | 0 |
+| Validation vs Test | 0 |
+
+Archivo generado:
+
+```text
+artifacts/week5_pipeline/split_leakage_audit.json
+```
+
+---
+
+## 7. Arquitectura general del pipeline
+
+```text
+Dataset limpio
+    ↓
+Validación de entorno
+    ↓
+Carga de train / val / test
+    ↓
+Auditoría de separación de datos
+    ↓
+Entrenamiento o carga de YOLOv8n
+    ↓
+Construcción de datasets PyTorch
+    ↓
+Entrenamiento de EfficientNet-B0
+    ↓
+Calibración con validación
+    ↓
+Evaluación sobre test
+    ↓
+Comparación de variantes
+    ↓
+Generación de reportes y evidencia visual
+```
+
+Flujo integral de inferencia:
+
+```text
+Imagen de entrada
+    ↓
+YOLOv8n
+    ↓
+Bounding box de conjuntiva
+    ↓
+Recorte ROI
+    ↓
+Normalización ImageNet
+    ↓
+EfficientNet-B0
+    ↓
+Calibración de probabilidad
+    ↓
+Aplicación de umbral
+    ↓
+Predicción final: Anemia / Normal
+```
+
+Variantes evaluadas:
+
+| Variante | Entrada al clasificador | Descripción |
+|---|---|---|
+| Baseline | Imagen completa | EfficientNet-B0 recibe la imagen original redimensionada. |
+| Var1 | ROI desde etiqueta | EfficientNet-B0 recibe el recorte generado desde la anotación YOLO real. |
+| Var2 | ROI detectada por YOLO | YOLOv8n detecta la ROI y EfficientNet-B0 realiza la clasificación final. |
+
+---
+
+## 8. Notebook principal
+
+Archivo principal:
+
+```text
+cp_v2_semana5_pipeline_FINAL.ipynb
+```
+
+Bloques implementados:
+
+| Bloque | Componente | Función principal |
+|---:|---|---|
+| 1 | Configuración central | Define rutas, parámetros, pesos, tamaño de imagen, umbrales y opciones de ejecución. |
+| 2 | Utilidades generales | Control de semilla, rutas, guardado de JSON y validación de entorno. |
+| 3 | Lectura de `data_clean.yaml` | Carga rutas de entrenamiento, validación, prueba y nombres de clases. |
+| 4 | Auditoría de datos | Verifica separación entre `train`, `val` y `test` por identificador base. |
+| 5 | Dataset PyTorch | Construye datasets para imagen completa y ROI desde anotaciones YOLO. |
+| 6 | Transformaciones | Aplica aumentación controlada en entrenamiento y normalización en validación/prueba. |
+| 7 | Modelo | Define `AnemiaClassifier` con EfficientNet-B0. |
+| 8 | Entrenamiento | Entrena, valida, guarda checkpoints y aplica early stopping. |
+| 9 | Evaluación | Calcula métricas, matriz de confusión y tiempos de inferencia. |
+| 10 | YOLO | Entrena o carga el detector de región de interés. |
+| 11 | End-to-end | Evalúa imagen → YOLO ROI → EfficientNet → predicción final. |
+| 12 | Inferencia individual | Clasifica una imagen nueva y genera salida visual anotada. |
+| 13 | Artefactos | Genera tablas, reportes, figuras y evidencia visual. |
+| 14 | Prueba `testImage` | Ejecuta una validación visual adicional con imágenes organizadas por carpeta. |
+
+---
+
+## 9. Estructura recomendada del repositorio
+
+```text
+Proyecto_Deteccion_Conjuntiva_v1-main/
+│
+├── cp_v2_semana5_pipeline_FINAL.ipynb
+├── README.md
+├── requirements.txt
+├── data_clean.yaml
+│
+├── dataset_clean/
+│   ├── train/
+│   │   ├── images/
+│   │   └── labels/
+│   ├── val/
+│   │   ├── images/
+│   │   └── labels/
+│   └── test/
+│       ├── images/
+│       └── labels/
+│
+├── testImage/
+│   ├── Anemia/
+│   └── Normal/
+│
+├── runs/
+│   └── detect/
+│       └── week5_yolo_*/
+│           └── weights/
+│               ├── best.pt
+│               └── last.pt
+│
+├── artifacts/
+│   └── week5_pipeline/
+│       ├── baseline_full/
+│       ├── roi_gt/
+│       ├── yolo_e2e/
+│       ├── evidence_pack/
+│       └── manual_testImage_predictions/
+│
+└── media/
+    ├── image1.png
+    ├── image2.png
+    ├── image3.png
+    ├── image4.png
+    ├── image5.png
+    ├── image6.png
+    ├── image7.png
+    ├── image8.png
+    ├── image9.png
+    └── image10.png
+```
+
+---
+
+## 10. Entorno de ejecución
+
+Entorno registrado por el notebook:
+
+| Componente | Valor |
+|---|---|
+| Sistema operativo | Windows |
+| Python | 3.10.0 |
+| Entorno virtual | `.venv` |
+| PyTorch | 2.11.0+cu126 |
+| CUDA | 12.6 |
+| GPU | NVIDIA GeForce GTX 1660 SUPER |
+| VRAM | 6.44 GB |
+| Ultralytics | 8.4.48 |
+
+---
+
+## 11. Instalación
+
+Crear entorno virtual:
+
+```bash
+python -m venv .venv
+```
+
+Activar entorno en Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+Instalar dependencias:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Registrar kernel para Jupyter o VS Code:
+
+```bash
+python -m ipykernel install --user --name anemia_env --display-name "Python 3.10 - Anemia Pipeline (.venv)"
+```
+
+---
+
+## 12. Ejecución
+
+Abrir el notebook:
+
+```text
+cp_v2_semana5_pipeline_FINAL.ipynb
+```
+
+Seleccionar el kernel:
+
+```text
+Python 3.10 - Anemia Pipeline (.venv)
+```
+
+Ejecutar las celdas en orden. El punto de entrada del pipeline principal es:
+
+```python
+if __name__ == "__main__":
+    warnings.filterwarnings("ignore", category=UserWarning)
+    results = main(CFG)
+```
+
+Carpeta principal de salida:
+
+```text
+artifacts/week5_pipeline/
+```
+
+---
+
+## 13. Configuración central
+
+La configuración principal se define en:
+
+```python
+PipelineConfig
+```
+
+Parámetros registrados:
+
+| Parámetro | Valor |
+|---|---:|
+| `seed` | 42 |
+| `image_size` | 224 |
+| `roi_margin` | 0.08 |
+| `yolo_imgsz` | 416 |
+| `yolo_batch` | 2 |
+| `yolo_conf_threshold` | 0.15 |
+| `batch_size` | 16 |
+| `learning_rate` | 1e-3 |
+| `weight_decay` | 1e-4 |
+| `threshold_min` | 0.20 |
+| `threshold_max` | 0.80 |
+| `threshold_step` | 0.01 |
+
+Archivo de configuración generado:
+
+```text
+artifacts/week5_pipeline/config_used.json
+```
+
+---
+
+## 14. Preprocesamiento y transformación de imágenes
+
+### Transformaciones de entrenamiento
+
+```text
+Resize(224 x 224)
+RandomHorizontalFlip(p=0.5)
+RandomRotation(8°)
+ColorJitter(brightness=0.10, contrast=0.10, saturation=0.02, hue=0.0)
+RandomAffine(translate=0.05, scale=0.95–1.05)
+ToTensor()
+Normalize(ImageNet mean/std)
+```
+
+### Transformaciones de validación y prueba
+
+```text
+Resize(224 x 224)
+ToTensor()
+Normalize(ImageNet mean/std)
+```
+
+Valores de normalización:
+
+```text
+mean = [0.485, 0.456, 0.406]
+std  = [0.229, 0.224, 0.225]
+```
+
+---
+
+## 15. Modelo detector de región de interés
+
+Detector utilizado:
+
+```python
+YOLO("yolov8n.pt")
+```
+
+Salida esperada:
+
+```text
+runs/detect/week5_yolo_*/weights/best.pt
+```
+
+Métricas registradas en validación:
+
+| Clase | Images | Instances | Box Precision | Recall | mAP50 | mAP50-95 |
+|---|---:|---:|---:|---:|---:|---:|
+| all | 251 | 251 | 0.337 | 0.590 | 0.335 | 0.177 |
+| Anemia | 120 | 120 | 0.207 | 0.617 | 0.262 | 0.128 |
+| Normal | 131 | 131 | 0.467 | 0.563 | 0.407 | 0.226 |
+
+Velocidad registrada por imagen:
+
+| Etapa | Tiempo |
+|---|---:|
+| Preprocess | 0.3 ms |
+| Inference | 3.3 ms |
+| Postprocess | 1.4 ms |
+
+---
+
+## 16. Modelo clasificador
+
+Clasificador implementado:
+
+```python
+AnemiaClassifier
+```
+
+Arquitectura base:
+
+```text
+EfficientNet-B0
+```
+
+Características:
+
+| Elemento | Configuración |
+|---|---|
+| Backbone | EfficientNet-B0 |
+| Pesos base | ImageNet |
+| Salida | 2 clases |
+| Loss | CrossEntropyLoss |
+| Optimizador | AdamW |
+| Scheduler | ReduceLROnPlateau |
+| Checkpoint | Mejor modelo por validación |
+| Calibración | Temperature Scaling |
+| Umbral | Seleccionado con validación |
+
+Parámetros registrados:
+
+| Modelo | Parámetros totales | Parámetros entrenables |
+|---|---:|---:|
+| EfficientNet-B0 | 4,010,110 | 2,562 |
+
+---
+
+## 17. Calibración y umbral de decisión
+
+Las probabilidades del clasificador se calibran con Temperature Scaling usando el conjunto de validación.
+
+| Variante | Temperatura | Umbral para `Anemia` |
+|---|---:|---:|
+| Baseline | 1.1206 | 0.48 |
+| Var1 | 1.1229 | 0.61 |
+| Var2 | 1.1499 | 0.53 |
+
+Regla de decisión:
+
+```text
+Si P(Anemia) >= umbral definido → Anemia
+Si P(Anemia) <  umbral definido → Normal
+```
+
+---
+
+## 18. Evaluación comparativa
+
+Evaluación realizada sobre 285 imágenes del conjunto `test`.
+
+| Variante | Entrada | Accuracy | F1 macro | Precision macro | Recall macro | Recall Anemia | Recall Normal | FN Anemia | FP Anemia | Detection rate | ms/img |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Baseline | Imagen completa | 0.6982 | 0.6978 | 0.7002 | 0.6987 | 0.7447 | 0.6528 | 36 | 50 | 1.0000 | 20.13 |
+| Var1 | ROI con bbox real/label | 0.7333 | 0.7301 | 0.7426 | 0.7323 | 0.6312 | 0.8333 | 52 | 24 | 1.0000 | 14.99 |
+| Var2 | YOLO ROI + clasificador ROI | 0.6807 | 0.6776 | 0.6899 | 0.6818 | 0.7872 | 0.5764 | 30 | 61 | 0.9825 | 43.03 |
+
+Resultado consolidado por criterio:
+
+| Criterio | Variante | Resultado |
+|---|---|---:|
+| Mayor accuracy | Var1 | 0.7333 |
+| Mayor F1 macro | Var1 | 0.7301 |
+| Mayor recall de Anemia | Var2 | 0.7872 |
+| Menor cantidad de FN Anemia | Var2 | 30 |
+| Menor tiempo por imagen | Var1 | 14.99 ms/img |
+| Flujo integral automatizado | Var2 | YOLO ROI + EfficientNet |
+
+Matrices de confusión:
+
+```text
+Baseline — Imagen completa
+[[105, 36],
+ [ 50, 94]]
+
+Var1 — ROI desde etiqueta real
+[[ 89, 52],
+ [ 24,120]]
+
+Var2 — YOLO ROI + EfficientNet
+[[111, 30],
+ [ 61, 83]]
+```
+
+---
+
+## 19. Gráficas y evidencia visual
+
+Las gráficas del pipeline se incluyen en la carpeta `media/` para visualización directa en GitHub.
+
+<img src="./media/image1.png" style="width:100%;max-width:900px" />
+
+**Figura 1. Comparación de métricas principales sobre conjunto test.**
+
+<img src="./media/image2.png" style="width:100%;max-width:900px" />
+
+**Figura 2. Matrices de confusión de Baseline, Var1 y Var2.**
+
+<img src="./media/image3.png" style="width:100%;max-width:900px" />
+
+**Figura 3. Métricas de validación del detector YOLOv8n.**
+
+<img src="./media/image4.png" style="width:70%;max-width:650px" />
+
+**Figura 4. Matriz de confusión manual sobre carpeta `testImage`.**
+
+<img src="./media/image5.png" style="width:100%;max-width:850px" />
+
+**Figura 5. Resumen de ejecución manual.**
+
+<img src="./media/image6.png" style="width:70%;max-width:550px" />
+
+**Figura 6. Ejemplo de salida end-to-end: YOLO ROI + EfficientNet.**
+
+<img src="./media/image7.png" style="width:100%;max-width:1000px" />
+
+**Figura 7. Muestra visual mixta de predicciones.**
+
+<img src="./media/image8.png" style="width:100%;max-width:900px" />
+
+**Figura 8. Aciertos correspondientes a la clase `Anemia`.**
+
+<img src="./media/image9.png" style="width:100%;max-width:900px" />
+
+**Figura 9. Aciertos correspondientes a la clase `Normal`.**
+
+<img src="./media/image10.png" style="width:100%;max-width:900px" />
+
+**Figura 10. Errores identificados durante la evaluación visual manual.**
+
+---
+
+## 20. Evaluación visual con carpeta testImage
+
+El notebook incorpora una evaluación adicional usando imágenes ubicadas en:
+
+```text
+testImage/
+```
+
+La etiqueta esperada se obtiene en este orden:
+
+1. Archivo YOLO `.txt` asociado a la imagen.
+2. Nombre de carpeta (`Anemia` o `Normal`).
+
+Resumen registrado:
+
+| Métrica | Valor |
+|---|---:|
+| Imágenes evaluadas | 9 |
+| Procesadas correctamente | 9 |
+| Correctas | 7 |
+| Incorrectas | 2 |
+| Accuracy | 77.78 % |
+| Sin ROI | 0 |
+| Fallback a imagen completa | 0 |
+
+Matriz de confusión manual:
+
+```text
+Predicción modelo
+                 Anemia  Normal
+Etiqueta Anemia      2       2
+Etiqueta Normal      0       5
+```
+
+Métricas manuales por clase:
+
+| Clase | Precision | Recall | F1 |
+|---|---:|---:|---:|
+| Anemia | 100.00 % | 50.00 % | 66.67 % |
+| Normal | 71.43 % | 100.00 % | 83.33 % |
+
+---
+
+## 21. Artefactos generados
+
+```text
+artifacts/week5_pipeline/
+├── config_used.json
+├── split_leakage_audit.json
+├── comparison_results.csv
+├── formal_test_summary.md
+├── README_semana5.md
+├── pipeline_progress.md
+├── pipeline_progress.json
+├── test_comparison_summary.png
+│
+├── baseline_full/
+│   ├── best.pt
+│   └── metrics_test.json
+│
+├── roi_gt/
+│   ├── best.pt
+│   └── metrics_test.json
+│
+├── yolo_e2e/
+│   ├── metrics_test.json
+│   ├── calibration.json
+│   └── threshold.json
+│
+├── evidence_pack/
+│   └── 08_sample_predictions/
+│       ├── sample_predictions.csv
+│       └── *.png
+│
+└── manual_testImage_predictions/
+    ├── consolidado_tesis.md
+    ├── consolidado_tesis.json
+    ├── consolidado_tesis.csv
+    ├── errores_modelo.csv
+    ├── aciertos_modelo.csv
+    ├── report/
+    │   └── reporte_visual_tesis.html
+    ├── grids/
+    ├── annotated/
+    ├── crops/
+    └── panels/
+```
+
+---
+
+## 22. Reproducibilidad
+
+Semilla global:
+
+```text
+seed = 42
+```
+
+Componentes controlados:
+
+```text
+random
+numpy
+torch
+torch.cuda
+cudnn.deterministic
+cudnn.benchmark = False
+```
+
+Archivos de trazabilidad:
+
+```text
+artifacts/week5_pipeline/config_used.json
+artifacts/week5_pipeline/pipeline_progress.md
+artifacts/week5_pipeline/pipeline_progress.json
+```
+
+---
+
+## 23. Inferencia individual
+
+Función principal:
+
+```python
+predict_single_image_e2e(...)
+```
+
+Entradas:
+
+```text
+Ruta de imagen
+Detector YOLO
+Clasificador EfficientNet
+Transformación de evaluación
+Umbral calibrado
+```
+
+Salida estructurada:
+
+```text
+status
+prediction_id
+prediction_name
+prob_anemia
+prob_normal
+bbox_xyxy
+confidence_yolo
+imagen anotada opcional
+```
+
+Flujo interno:
+
+```text
+1. Leer imagen.
+2. Detectar ROI con YOLOv8n.
+3. Recortar región de interés.
+4. Aplicar transformación de evaluación.
+5. Ejecutar EfficientNet-B0.
+6. Aplicar calibración.
+7. Aplicar umbral de Anemia.
+8. Generar resultado estructurado.
+```
+
+---
+
+## 24. Archivos recomendados para GitHub
+
+Versionar:
+
+```text
+cp_v2_semana5_pipeline_FINAL.ipynb
+README.md
+requirements.txt
+data_clean.yaml
+media/
+artifacts/week5_pipeline/comparison_results.csv
+artifacts/week5_pipeline/formal_test_summary.md
+artifacts/week5_pipeline/test_comparison_summary.png
+artifacts/week5_pipeline/pipeline_progress.md
+artifacts/week5_pipeline/manual_testImage_predictions/consolidado_tesis.md
+artifacts/week5_pipeline/manual_testImage_predictions/report/reporte_visual_tesis.html
+```
+
+No versionar archivos pesados o locales:
+
+```text
+.venv/
+__pycache__/
+*.pt
+*.pth
+runs/
+dataset_clean/
+.ipynb_checkpoints/
+*.cache
+```
+
+Ejemplo de `.gitignore`:
+
+```gitignore
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# Pesos y corridas pesadas
+*.pt
+*.pth
+runs/
+
+# Dataset local
+Dataset/
 dataset/
-├── train/
-│   ├── images/    # 2,391 imágenes (jpg/png)
-│   └── labels/    # 2,391 archivos .txt (formato YOLO)
-├── val/
-│   ├── images/    # 130 imágenes
-│   └── labels/    # 130 archivos .txt
-└── test/
-    ├── images/    # 68 imágenes
-    └── labels/    # 68 archivos .txt
+dataset_clean/
+train/
+valid/
+val/
+test/
+
+# Cachés
+*.cache
+*.tmp
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
 ```
 
-## Pasos de Limpieza Aplicados
+---
 
-**1. Validación de Estructura**
+## 25. Resultado consolidado
 
-- Verificación de existencia de subdirectorios images/ y labels/
+El repositorio presenta un pipeline integral de clasificación de imágenes de conjuntiva palpebral con tres variantes comparables. La variante `Var1` registra el mayor desempeño global en accuracy y F1 macro, mientras que la variante `Var2` representa el flujo automatizado basado en detección de ROI con YOLOv8n y clasificación con EfficientNet-B0.
 
-- Comprobación de correspondencia 1:1 entre imágenes y labels
-
-- Detección de archivos corruptos o vacíos (manejo con fallback)
-
-**2. Normalización de Datos**
-
-- Conversión automática de todas las imágenes a RGB (3 canales)
-
-- Manejo de extensiones múltiples (.jpg, .jpeg, .png)
-
-- Redimensionamiento uniforme a 224×224 para EfficientNet
-
-**3. Extracción de Etiquetas**
-
-- Parsing de archivos .txt para extraer class_id
-
-- Manejo de labels faltantes (asignación de clase 0 por defecto)
-
-- Validación de formato numérico
-
-**4. Análisis de Desbalance**
-
-- Conteo de muestras por clase en train set
-
-- Cálculo de ratio de desbalance (imbalance_ratio)
-
-- Identificación de clase minoritaria
-
-### Entregable
-
-**✅ Notebook ejecutable:** cp_v1.ipynb
-
-- Células 1-5: Configuración y verificación de entorno
-
-- Células 6-7: Definición de clases AnemiaDataset y AnemiaClassifier
-
-- Historial de ejecución preservado con variables en memoria
-
-### Comentarios / Problemas
-
-**Problemas Identificados:**
-
-- ⚠️ Desbalance de clases significativo en train set (analizado en Fase 5)
-
-- ⚠️ GPU Memory: Batch size limitado a 32 para evitar OOM en GPUs con \< 8GB VRAM
-
-**Soluciones Implementadas:**
-
-- Uso de WeightedRandomSampler para balancear muestras en cada época
-
-- Class weights en CrossEntropyLoss para penalizar errores en clase minoritaria
-
-- Umbral de clasificación ajustable para controlar trade-off Sensibilidad/Especificidad
-
-# 4. EDA Rápido
-
-## Hallazgos Principales
-
-### 4.1 Distribución de Clases
-
-Dataset de Entrenamiento (2,391 imágenes): Se identificó desbalance significativo entre las clases. Cálculo de ratio de desbalance: max(class_counts) / min(class_counts). Clase minoritaria identificada (requiere técnicas de balanceo).
-
-**Métricas de Desbalance:**
-
-Inverse Frequency Weighting aplicado:
-
-```python
-peso_clase_i = total_samples / (num_classes * class_count_i)
-```
-
-- Peso Anemia (clase 0): Variable según distribución real
-
-- Peso Normal (clase 1): Variable según distribución real
-
-### 4.2 Calidad de Imágenes
-
-**Características del Dataset:**
-
-- Resoluciones variables: Imágenes originales en diferentes tamaños
-
-- Iluminación heterogénea: Variabilidad en condiciones de captura
-
-- Anotaciones YOLO: Bounding boxes de conjuntiva palpebral con coordenadas normalizadas
-
-**Aumentación de Datos (Training):**
-
-```python
-transforms.Compose([
-    Resize(224×224),
-    RandomHorizontalFlip(p=0.5),
-    RandomRotation(±10°),
-    ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1, hue=0.05),
-    RandomAffine(translate=0.1, scale=0.9-1.1),
-    ToTensor(),
-    Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) # ImageNet
-])
-```
-
-### 4.3 Outliers y Valores Nulos
-
-**Imágenes:**
-
-- ✅ No se detectaron valores nulos en tensor de imágenes
-
-- ✅ Manejo automático de imágenes corruptas con fallback a tensor negro
-
-**Labels:**
-
-- ⚠️ Algunos archivos de labels vacíos o malformados
-
-- Solución: Asignación de clase 0 (Anemia) por defecto
-
-- Logging de advertencias para revisión manual
-
-**Detecciones YOLO:**
-
-- ⚠️ Casos sin detección de conjuntiva (confidence \< threshold)
-
-- Requiere ajuste de umbral de confianza en inferencia
-
-- Recomendación: conf_threshold=0.25 para máxima sensibilidad
-
-## Visualizaciones Clave
-
-**1. Curva ROC (Test Set)**
-
-- AUC-ROC: ~0.85-0.95 (según ejecución final)
-
-- Identificación de umbral óptimo mediante Youden's J statistic
-
-- Archivo: test_roc_pr_curves.png
-
-**2. Matriz de Confusión**
-
-- Visualización de True Positives, False Positives, False Negatives, True Negatives
-
-- Porcentajes por clase para interpretación clínica
-
-- Archivo: test_confusion_matrix.png
-
-**3. Distribución de Probabilidades**
-
-- Histogramas superpuestos de prob(Anemia) por clase real
-
-- Identificación de zona de solapamiento (casos difíciles)
-
-- Archivo: test_probability_analysis.png
-
-**4. Curva Precision-Recall**
-
-- Análisis de trade-off entre precisión y recall
-
-- AUC-PR calculado para métricas alternativas
-
-- Útil para datasets desbalanceados
-
-### Gráficos Generados
-
-<img src="./media/image1.png" style="width:6in;height:2.22166in" />
-
-*Figura 1: Curvas ROC y Precision-Recall en Test Set*
-
-<img src="./media/image2.png" style="width:5in;height:4.67139in" />
-
-*Figura 2: Matriz de Confusión Normalizada (Test Set)*
-
-<img src="./media/image3.png" style="width:6in;height:2.10663in" />
-
-*Figura 3: Distribución de Probabilidades por Clase*
-
-<img src="./media/image4.png" style="width:6in;height:2.10935in" />
-
-*Figura 4: Distribución de Confianza en Predicciones*
-
-### Entregable
-
-**✅ Sección EDA integrada en notebook:** cp_v1.ipynb
-
-- Fase 5: Análisis de desbalance de clases (líneas ~700-850)
-
-- Fase 7: Evaluación completa con visualizaciones (líneas ~1700-2120)
-
-**✅ Gráficos generados automáticamente:**
-
-- test_roc_pr_curves.png
-
-- test_confusion_matrix.png
-
-- test_probability_analysis.png
-
-# 5. Modelo Baseline
-
-## 5.1 Detector de Conjuntiva (Modelo 1)
-
-**Tipo de Modelo:**
-
-- Arquitectura: YOLOv8 nano (yolov8n.pt)
-
-- Tarea: Detección de objetos (bounding box de conjuntiva palpebral)
-
-- Pretrained: Pesos de COCO dataset
-
-**Configuración:**
-
-| Parámetro     | Valor                     | Descripción                      |
-|---------------|---------------------------|----------------------------------|
-| Épocas        | 50                        | Con early stopping (patience=10) |
-| Imagen        | 640×640                   | Tamaño de entrada estándar YOLO  |
-| Batch size    | 16                        | Ajustado para GPU                |
-| Optimizador   | AdamW                     | Con weight decay 0.0005          |
-| Learning Rate | 0.01 → 0.0001             | Decay lineal                     |
-| Momentum      | 0.937                     | Para estabilidad                 |
-| Warmup        | 3 épocas                  | Con momentum 0.8                 |
-| Loss weights  | box=7.5, cls=0.5, dfl=1.5 | Prioridad a localización         |
-
-**Librerías Usadas:**
-
-- ultralytics (YOLOv8 oficial)
-- torch 2.x + CUDA
-- opencv-python (cv2)
-- PIL (Image processing)
-
-**Entregable:**
-
-- ✅ Código de entrenamiento: Fase 3 en cp_v1.ipynb (líneas ~156-241)
-
-- ✅ Modelo guardado: runs/detect/conjuntiva_detector/weights/best.pt
-
-- ✅ Métricas YOLO:
-
-- results.png: Curvas de loss, mAP@0.5, mAP@0.5:0.95
-
-- confusion_matrix.png: Confusión de detecciones
-
-- val_batch_labels.jpg: Ejemplos de predicciones
-
-**Observaciones:**
-
-- Convergencia rápida (\< 30 épocas típicamente por early stopping)
-
-- mAP@0.5 \> 0.90 alcanzado consistentemente
-
-- Detecciones estables con confidence \> 0.25
-
-**📊 Métricas de Rendimiento YOLOv8n**
-
-| mAP@0.5 (Validación)      | 0.92 - 0.95     |
-|---------------------------|-----------------|
-| mAP@0.5:0.95 (Validación) | 0.78 - 0.85     |
-| Precisión Promedio        | 0.90 - 0.93     |
-| Recall Promedio           | 0.88 - 0.92     |
-| Épocas de Convergencia    | \< 30 épocas    |
-| Tiempo de Inferencia      | ~0.3-0.5s (GPU) |
-| Parámetros del Modelo     | ~3.2M           |
-
-### Visualizaciones del Entrenamiento YOLO
-
-<img src="./media/image5.png" style="width:6.5in;height:3.25in" />
-
-*Figura 5: Métricas de Entrenamiento YOLOv8 (Loss, mAP, Precision, Recall)*
-
-<img src="./media/image6.png" style="width:5.36681in;height:4.0251in" />
-
-*Figura 6: Matriz de Confusión Normalizada del Detector YOLO*
-
-<img src="./media/image7.png" style="width:7.59414in;height:5.06276in" />
-
-*Figura 7: Curva Precision-Recall para Detección de Conjuntiva*
-
-## 5.2 Clasificador de Anemia (Modelo 2)
-
-**Tipo de Modelo:**
-
-- Arquitectura: EfficientNet-B0
-
-- Tarea: Clasificación binaria (Anemia vs Normal)
-
-- Pretrained: Pesos de ImageNet
-
-**Configuración:**
-
-| Parámetro     | Valor                 | Descripción                          |
-|---------------|-----------------------|--------------------------------------|
-| Épocas        | 30                    | Con scheduler ReduceLROnPlateau      |
-| Imagen        | 224×224               | Estándar para EfficientNet           |
-| Batch size    | 32                    | Balanceado con WeightedRandomSampler |
-| Optimizador   | Adam                  | lr=0.001, betas=(0.9, 0.999)         |
-| Weight decay  | 1e-4                  | Regularización L2                    |
-| Loss function | CrossEntropyLoss      | Con class weights                    |
-| Scheduler     | ReduceLROnPlateau     | patience=3, factor=0.5, min_lr=1e-6  |
-| Sampler       | WeightedRandomSampler | Para balancear clases                |
-
-**Técnicas de Balanceo Implementadas:**
-
-1\. Class Weights en Loss:
-
-```python
-class_weights = [
-    total_samples / (2 * class_0_count),
-    total_samples / (2 * class_1_count)
-]
-criterion = nn.CrossEntropyLoss(weight=class_weights)
-```
-
-2\. WeightedRandomSampler:
-
-```python
-sample_weights[i] = 1.0 / class_count[label[i]]
-sampler = WeightedRandomSampler(
-    weights=sample_weights,
-    num_samples=len(dataset),
-    replacement=True # Oversampling de clase minoritaria
-)
-```
-
-**Librerías Usadas:**
-
-- torch 2.x + torchvision
-- timm (alternative: torchvision.models)
-- scikit-learn (métricas)
-- seaborn + matplotlib (visualización)
-- tqdm (progress bars)
-
-**Arquitectura del Modelo:**
+Resumen principal:
 
 ```text
-EfficientNet-B0:
-  ├─ backbone (pretrained on ImageNet)
-  │   ├─ conv_stem: Conv2d(3, 32)
-  │   ├─ blocks: 16 MBConv blocks
-  │   └─ conv_head: Conv2d(320, 1280)
-  └─ classifier (modificado)
-      ├─ avgpool: AdaptiveAvgPool2d
-      ├─ dropout: Dropout(0.2)
-      └─ fc: Linear(1280, 2) # Anemia / Normal
-
-Total params: ~5.3M
-Trainable params: ~5.3M (fine-tuning completo)
+Mejor accuracy:             Var1 = 73.33 %
+Mejor F1 macro:             Var1 = 73.01 %
+Mejor recall Anemia:        Var2 = 78.72 %
+Menor FN Anemia:            Var2 = 30
+Pipeline integral completo: Var2 = YOLO ROI + EfficientNet
 ```
 
-**Entregable:**
-
-- ✅ Código de entrenamiento: Fase 5 en cp_v1.ipynb (líneas ~703-1085)
-
-- ✅ Modelo guardado: best_anemia_classifier.pth
-
-- ✅ Historial de entrenamiento guardado con métricas por época
-
-```python
-history = {
-    'train_loss': [epoch_losses],
-    'val_loss': [epoch_losses],
-    'val_acc': [accuracies],
-    'val_f1': [f1_scores],
-    'lr': [learning_rates]
-}
-```
-
-**Observaciones:**
-
-- Mejor modelo seleccionado por F1-Score (más robusto que accuracy para clases desbalanceadas)
-
-- Learning rate reducido automáticamente si accuracy no mejora en 3 épocas
-
-- F1-Score macro \> 0.85 alcanzado consistentemente
-
-- Overfitting controlado mediante:
-
-- Aumentación de datos agresiva
-
-- Weight decay (L2 regularization)
-
-- Early stopping implícito por scheduler
-
-**📊 Métricas de Rendimiento EfficientNet-B0**
-
-| Accuracy (Validación)   | ~88.24%     |
-|-------------------------|-------------|
-| F1-Score Macro          | 0.84 - 0.89 |
-| Precisión Anemia        | 0.85 - 0.88 |
-| Recall Anemia           | 0.85 - 0.90 |
-| AUC-ROC                 | 0.88 - 0.95 |
-| Parámetros Totales      | ~5.3M       |
-| Tiempo de Entrenamiento | ~30 épocas  |
-| Batch Size Óptimo       | 32          |
-
-# 6. Pruebas Iniciales
-
-## Protocolo de Evaluación
-
-Método: Hold-out con validación exhaustiva en imágenes normales
-
-| Split    | Imágenes      | Uso                                     |
-|----------|---------------|-----------------------------------------|
-| Train    | 2,391 (92.3%) | Entrenamiento con WeightedRandomSampler |
-| Val      | 130 (5.0%)    | Validación y ajuste de hiperparámetros  |
-| Test     | 68 (2.6%)     | Evaluación inicial                      |
-| Normales | 34            | Validación exhaustiva de sesgo          |
-
-**Configuración:**
-
-- Seed: Reproducible con PyTorch
-
-- Umbral unificado: 0.15 (YOLO detección)
-
-- Umbrales asimétricos iniciales: Anemia=0.75, Normal=0.40
-
-- Evaluación: Validación específica con 34 imágenes normales
-
-## Resultados por Modelo
-
-### 6.1 YOLOv8n (Detector de Conjuntiva)
-
-**Métricas de Detección:**
-
-| Métrica      | Valor     | Descripción                          |
-|--------------|-----------|--------------------------------------|
-| mAP@0.5      | 0.92-0.95 | Mean Average Precision con IoU 0.5   |
-| mAP@0.5:0.95 | 0.78-0.85 | mAP promediado IoU 0.5-0.95          |
-| Precision    | 0.90-0.93 | Porcentaje de detecciones correctas  |
-| Recall       | 0.88-0.92 | Porcentaje de conjuntivas detectadas |
-
-### 6.2 EfficientNet-B0 (Clasificador de Anemia)
-
-**Resultados en Test Set (68 muestras):**
-
-| Métrica            | Valor     | Descripción                        |
-|--------------------|-----------|------------------------------------|
-| Accuracy           | 88.24%    | Predicciones correctas en test set |
-| Precision (Anemia) | 0.85-0.88 | Precisión clase Anemia             |
-| Recall (Anemia)    | 0.85-0.90 | Sensibilidad clase Anemia          |
-| F1-Score           | 0.84-0.89 | Media armónica P-R                 |
-| AUC-ROC            | 0.88-0.95 | Capacidad discriminativa           |
-
-### 6.3 Calibración de Umbrales (Optimización Final)
-
-**⚠️ Problema Identificado:**
-
-Umbrales asimétricos iniciales (ANEMIA=75%, NORMAL=40%) clasificaban casos reales de anemia como "Incertidumbre". Test con 4 imágenes de anemia confirmadas: todas mostraban probabilidades entre 63-71%, por debajo del umbral del 75%.
-
-**✅ Solución Implementada:**
-
-1\. Análisis ROC Exhaustivo (Celda 30):
-
-- Evaluación de las 68 imágenes del test set
-
-- Cálculo del estadístico J de Youden para punto óptimo
-
-- Resultado inicial: ANEMIA=70%, NORMAL=30%
-
-2\. Validación Iterativa (Celda 37):
-
-- Primera validación con umbral 70%: 25% de detección (1/4 anemias)
-
-- Análisis de probabilidades observadas: 63.7%, 67.2%, 71.6%, 68.8%
-
-- Ajuste manual a ANEMIA=60% (captura mínimo observado de 63.7%)
-
-3\. Validación Final:
-
-- Segunda validación con umbral 60%: 100% de detección (4/4 anemias)
-
-- Todas las imágenes correctamente diagnosticadas como "Anemia"
-
-**Umbrales Optimizados Finales:**
-
-| Umbral             | Valor      | Justificación                                            |
-|--------------------|------------|----------------------------------------------------------|
-| ANEMIA             | 0.60 (60%) | Captura todas las probabilidades observadas (mín: 63.7%) |
-| NORMAL             | 0.40 (40%) | Mantiene especificidad y reduce incertidumbre            |
-| Zona Incertidumbre | 20%        | Reducida desde 35% para mayor precisión                  |
-
-**Resultados de Validación con 4 Imágenes de Anemia:**
-
-| Imagen                                     | Probabilidad Anemia | Diagnóstico | Estado      |
-|--------------------------------------------|---------------------|-------------|-------------|
-| 14_jpg.rf.e44fabf52a8743ceeec7781bcb74dc7e | 63.7%               | 🔴 Anemia   | ✅ Correcto |
-| 20200124_155418_jpg                        | 67.2%               | 🔴 Anemia   | ✅ Correcto |
-| 20200124_160522_jpg                        | 71.6%               | 🔴 Anemia   | ✅ Correcto |
-| 20200209_132714_jpg                        | 68.8%               | 🔴 Anemia   | ✅ Correcto |
-
-**Tasa de Éxito: 4/4 (100%)**
-
-### Validación Exhaustiva: 34 Imágenes Normales
-
-**Resultados Finales (con corrección de sesgo):**
-
-| Categoría             | Cantidad | Porcentaje | Estado      |
-|-----------------------|----------|------------|-------------|
-| ✅ Correctas (Normal) | 17       | 50.0%      | Óptimo      |
-| ⚠️ Incertidumbre      | 16       | 47.1%      | Aceptable   |
-| ❌ Falsos Positivos   | 1        | 2.9%       | Excelente   |
-| Resultados Aceptables | 33       | 97.1%      | ✅ Superado |
-
-**Interpretación:**
-
-- Sistema corrigió sesgo de 100% → 2.9% falsos positivos
-
-- 97.1% de resultados aceptables (normal + incertidumbre)
-
-- Umbrales optimizados (60%/40%) balancean sensibilidad y especificidad
-
-**📊 Métricas del Sistema Integrado Final**
-
-| Accuracy Total (Test)                 | 88.24%        |
-|---------------------------------------|---------------|
-| Tasa de Detección Anemias             | 100% (4/4)    |
-| Tasa Resultados Aceptables (Normales) | 97.1% (33/34) |
-| Falsos Positivos (Normales)           | 2.9% (1/34)   |
-| Zona de Incertidumbre                 | 20% (60%-40%) |
-| Umbral Anemia Optimizado              | 60%           |
-| Umbral Normal Optimizado              | 40%           |
-| AUC-ROC Final                         | 0.88 - 0.95   |
-
-**📈 Impacto de la Calibración de Umbrales**
-
-| Métrica               | Antes (75%/40%)    | Después (60%/40%) | Mejora    |
-|-----------------------|--------------------|-------------------|-----------|
-| Detección Anemias     | 0% (Incertidumbre) | 100% (4/4)        | +100%     |
-| Falsos Positivos      | No medido          | 2.9% (1/34)       | Óptimo    |
-| Zona Incertidumbre    | 35%                | 20%               | -15%      |
-| Resultados Aceptables | Variable           | 97.1%             | Excelente |
-
-### Entregable
-
-- ✅ Tabla de resultados: cp_v1.ipynb Celdas 30-37
-
-- ✅ Visualizaciones: ROC, Matriz de confusión, Distribución de probabilidades
-
-- ✅ Código reproducible: Pipeline completo documentado con guía de ejecución
-
-- ✅ Validación exhaustiva: 34 normales + 4 anemias con 100% de detección
-
-- ✅ Calibración de umbrales: Análisis ROC con Youden's J + ajuste manual
-
-- ✅ Función optimizada: predict_anemia_final() con umbrales 60%/40%
-
-# 7. Avance de la Demo Interna
-
-## Qué se mostró
-
-**Sistema Completo Integrado:**
-
-1\. Interfaz de Detección de Conjuntiva:
-
-- Upload de imagen con widget interactivo
-
-- Visualización con bounding box coloreado
-
-- Umbral unificado de confianza (0.15)
-
-- Tiempo de respuesta: ~0.3-0.5s (GPU)
-
-2\. Interfaz de Análisis Completo:
-
-- Pipeline dual: YOLOv8 + EfficientNet
-
-- 3 categorías de diagnóstico: Normal / Incertidumbre / Anemia
-
-- Función optimizada: Usa automáticamente predict_anemia_final() si está disponible
-
-- Umbrales adaptativos: ANEMIA=60%, NORMAL=40% (calibrados por ROC)
-
-- Visualización ROI extraída
-
-- Gráfico de probabilidades interactivo
-
-- Recomendaciones clínicas automáticas
-
-3\. Sistema de Control de Calidad:
-
-- Validación de: blur, exposición, contraste, tamaño
-
-- Alertas no bloqueantes
-
-- Configuración ajustable
-
-## Feedback Recibido
-
-### ✅ Puntos Fuertes
-
-1.  1\. Arquitectura Dual Robusta: Sistema detector+clasificador con 88.24% accuracy
-
-2.  2\. Corrección de Sesgo Exitosa: 100% → 2.9% falsos positivos en normales
-
-3.  3\. Calibración de Umbrales Óptima: Análisis ROC + validación iterativa → 100% detección anemias
-
-4.  4\. Sistema Adaptativo: Ajuste de umbrales de 75%→60% basado en datos reales
-
-5.  5\. Interfaz Intuitiva: Fácil de usar sin conocimientos técnicos, auto-detección de función optimizada
-
-6.  6\. Documentación Completa: Código comentado y reproducible con guía de ejecución paso a paso
-
-7.  7\. Validación Exhaustiva: 97.1% resultados aceptables (33/34 normales) + 100% anemias detectadas (4/4)
-
-### ⚠️ Puntos a Mejorar
-
-8.  1\. Dataset Limitado: Test set pequeño (68 imágenes) - Ampliar a 200+
-
-9.  2\. Zona de Incertidumbre: 20% de zona gris (60%-40%) - Explorar técnicas de calibración adicionales
-
-10. 3\. Validación Clínica: Necesita comparación con hemogramas reales para confirmar diagnósticos
-
-11. 4\. Explicabilidad: Implementar Grad-CAM para interpretabilidad de decisiones del clasificador
-
-12. 5\. Generalización: Validar con imágenes de diferentes dispositivos y condiciones de iluminación
-
-# 8. Plan para Siguiente Semana
-
-## Objetivo: Optimización y Validación Clínica
-
-### Tareas Prioritarias
-
-| ID  | Tarea                   | Descripción                                       | Responsable      | Prioridad | Estimación |
-|-----|-------------------------|---------------------------------------------------|------------------|-----------|------------|
-| 1   | Ampliación del Test Set | Recolectar 200+ imágenes con ground truth clínico | John Rivera      | 🔴 Alta   | 3 días     |
-| 2   | Implementar Grad-CAM    | Mapas de atención para explicabilidad             | Manuel Cochachin | 🟡 Media  | 2 días     |
-| 3   | Optimización ONNX       | Convertir modelos y medir latencia                | John Rivera      | 🟢 Baja   | 2 días     |
-| 4   | Sistema de Alertas      | Casos ambiguos con alerta automática              | Manuel Cochachin | 🟡 Media  | 1 día      |
-| 5   | API REST                | Endpoint FastAPI para inferencia                  | John Rivera      | 🔴 Alta   | 3 días     |
-| 6   | Validación con Médicos  | Sesión feedback con especialistas                 | Manuel Cochachin | 🔴 Alta   | 2 días     |
-| 7   | Documentación Clínica   | Guía de uso para personal médico                  | John Rivera      | 🟡 Media  | 2 días     |
+---
+
+## 26. Referencia rápida
+
+| Recurso | Ruta |
+|---|---|
+| Notebook principal | `cp_v2_semana5_pipeline_FINAL.ipynb` |
+| Dataset limpio | `dataset_clean/` |
+| Configuración de datos | `data_clean.yaml` |
+| Resultados principales | `artifacts/week5_pipeline/` |
+| Pesos YOLO | `runs/detect/week5_yolo_*/weights/best.pt` |
+| Pesos clasificador ROI | `artifacts/week5_pipeline/roi_gt/best.pt` |
+| Reporte visual | `artifacts/week5_pipeline/manual_testImage_predictions/report/reporte_visual_tesis.html` |
+| Evidencia para README | `media/` |
