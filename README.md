@@ -1,6 +1,6 @@
 # Sistema de Detección de Anemia mediante Análisis de Conjuntiva Palpebral con YOLOv8n y EfficientNet-B0
 
-**Proyecto de tesis:** Sistema computacional para análisis de imágenes de conjuntiva palpebral inferior y clasificación binaria `Anemia` / `Normal`  
+**Proyecto de tesis:** Sistema de apoyo al tamizaje de anemia por conjuntiva palpebral por medio de imágenes de conjuntiva palpebral inferior y clasificación binaria `Anemia` / `Normal`  
 **Autores:** John Rivera, Manuel Cochachin  
 **Línea de investigación:** Visión por computadora aplicada al procesamiento de imágenes biomédicas  
 **Dataset base:** Anemia Detection v6 — Roboflow Universe  
