@@ -1,0 +1,7 @@
+path: C:\Users\JohnR\Documents\GitHub\Proyecto_Deteccion_Conjuntiva_v1\tesis_outputs\dataset_yolo_conjuntiva
+train: train/images
+val: val/images
+test: test/images
+nc: 1
+names:
+- conjuntiva
