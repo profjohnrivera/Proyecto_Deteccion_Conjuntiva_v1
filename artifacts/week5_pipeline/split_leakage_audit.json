@@ -1,0 +1,24 @@
+{
+  "split_sizes_images": {
+    "train": 2053,
+    "val": 251,
+    "test": 285
+  },
+  "intersections_by_base_id": {
+    "train_vs_val": {
+      "count": 0,
+      "examples": []
+    },
+    "train_vs_test": {
+      "count": 0,
+      "examples": []
+    },
+    "val_vs_test": {
+      "count": 0,
+      "examples": []
+    }
+  },
+  "rule": "Si count > 0, hay leakage por imagen base/aumentaciones entre splits.",
+  "fail_on_leakage": true,
+  "data_yaml": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\data_clean.yaml"
+}
