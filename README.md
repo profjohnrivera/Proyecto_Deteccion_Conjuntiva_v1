@@ -1,6 +1,6 @@
 # Sistema de apoyo al tamizaje de Anemia mediante Análisis de Conjuntiva Palpebral con YOLOv8n y EfficientNet-B0
 
-**Proyecto de tesis:** Sistema de apoyo al tamizaje de anemia por conjuntiva palpebral por medio de imágenes de conjuntiva palpebral inferior y clasificación binaria `Anemia` / `Normal`  
+**Proyecto de tesis:** Sistema de apoyo al tamizaje de anemia por conjuntiva palpebral mediante imágenes de conjuntiva palpebral inferior y clasificación binaria `Anemia` / `Normal`  
 **Autores:** John Rivera, Manuel Cochachin  
 **Línea de investigación:** Visión por computadora aplicada al procesamiento de imágenes biomédicas  
 **Dataset base:** Anemia Detection v6 — Roboflow Universe  
@@ -31,14 +31,13 @@
 16. [Modelo clasificador](#16-modelo-clasificador)
 17. [Calibración y umbral de decisión](#17-calibración-y-umbral-de-decisión)
 18. [Evaluación comparativa](#18-evaluación-comparativa)
-19. [Gráficas y evidencia visual](#19-gráficas-y-evidencia-visual)
-20. [Evaluación visual con carpeta testImage](#20-evaluación-visual-con-carpeta-testimage)
-21. [Artefactos generados](#21-artefactos-generados)
-22. [Reproducibilidad](#22-reproducibilidad)
-23. [Inferencia individual](#23-inferencia-individual)
-24. [Archivos recomendados para GitHub](#24-archivos-recomendados-para-github)
-25. [Resultado consolidado](#25-resultado-consolidado)
-26. [Referencia rápida](#26-referencia-rápida)
+19. [Gráficas y estadísticas del test formal](#19-gráficas-y-estadísticas-del-test-formal)
+20. [Artefactos generados](#20-artefactos-generados)
+21. [Reproducibilidad](#21-reproducibilidad)
+22. [Inferencia individual](#22-inferencia-individual)
+23. [Archivos recomendados para GitHub](#23-archivos-recomendados-para-github)
+24. [Resultado consolidado](#24-resultado-consolidado)
+25. [Referencia rápida](#25-referencia-rápida)
 
 ---
 
@@ -53,7 +52,9 @@ La solución integra dos componentes principales:
 | Detector de región de interés | YOLOv8n | Localiza la zona de conjuntiva mediante bounding box. |
 | Clasificador visual | EfficientNet-B0 | Clasifica la imagen completa o el recorte ROI en `Anemia` / `Normal`. |
 
-El pipeline implementa carga de datos, validación de estructura, auditoría de separación de subconjuntos, entrenamiento/carga de modelos, calibración de probabilidades, comparación de variantes, evaluación sobre conjunto `test` y generación de evidencia visual para revisión académica.
+El pipeline implementa carga de datos, validación de estructura, auditoría de separación de subconjuntos, entrenamiento/carga de modelos, calibración de probabilidades, comparación de variantes, evaluación sobre el conjunto `test` formal y generación de gráficas estadísticas para revisión académica.
+
+**Actualización importante:** este README queda alineado con la versión actual del cuaderno, donde la evidencia reportada se limita al **test formal**. No se reportan imágenes ni métricas de `testImage`, porque esa carpeta era una prueba visual manual pequeña y no debe usarse como resultado principal.
 
 ---
 
@@ -72,7 +73,7 @@ Desarrollar un sistema basado en visión por computadora para clasificar imágen
 5. Implementar un clasificador EfficientNet-B0 para clasificación binaria de imágenes completas y recortes ROI.
 6. Comparar tres variantes de procesamiento: imagen completa, ROI desde etiqueta y ROI detectada por YOLO.
 7. Calibrar las probabilidades del clasificador y seleccionar el umbral de decisión usando validación.
-8. Consolidar métricas, matrices de confusión, predicciones de muestra, reportes y artefactos visuales.
+8. Consolidar métricas, matrices de confusión, curvas ROC/Precision-Recall, calibración, distribución de probabilidades y grillas visuales **solo desde el test formal**.
 
 ---
 
@@ -87,13 +88,13 @@ Desarrollar un sistema basado en visión por computadora para clasificar imágen
 
 ## 4. Tareas resueltas
 
-Las tareas se reorganizan según el estado actual del notebook `cp_v2_semana5_pipeline_FINAL.ipynb`, evitando mezclar métricas de versiones anteriores con los resultados del pipeline vigente.
+Las tareas se organizan según el estado actual del notebook `cp_v2_semana5_pipeline_FINAL.ipynb`, evitando mezclar resultados formales con pruebas manuales pequeñas.
 
 | ID | Tarea desarrollada | Responsable | Estado | Evidencia en el repositorio |
 |---:|---|---|---|---|
 | 1 | Definición del pipeline de ingesta y estructura de datos | John Rivera | Completado | `data_clean.yaml`, `dataset_clean/` |
 | 2 | Validación del entorno de ejecución y disponibilidad GPU/CUDA | Manuel Cochachin | Completado | Bloques de validación del notebook |
-| 3 | Instalación y uso de dependencias principales | Manuel Cochachin | Completado | `requirements.txt`, entorno `.venv` |
+| 3 | Instalación y uso de dependencias principales | Manuel Cochachin | Completado | `.venv`, dependencias Python |
 | 4 | Preparación de dataset con formato YOLOv8 | John Rivera | Completado | `images/`, `labels/`, anotaciones `.txt` |
 | 5 | Auditoría de separación entre `train`, `val` y `test` | John Rivera | Completado | `split_leakage_audit.json` |
 | 6 | Implementación de transformaciones y normalización de imágenes | Manuel Cochachin | Completado | Transformaciones PyTorch del notebook |
@@ -103,9 +104,9 @@ Las tareas se reorganizan según el estado actual del notebook `cp_v2_semana5_pi
 | 10 | Evaluación Var1 con ROI desde etiqueta | John Rivera | Completado | `artifacts/week5_pipeline/roi_gt/` |
 | 11 | Evaluación Var2 con ROI detectada por YOLO | Manuel Cochachin | Completado | `artifacts/week5_pipeline/yolo_e2e/` |
 | 12 | Calibración de probabilidades y selección de umbral | Manuel Cochachin | Completado | `calibration.json`, `threshold.json` |
-| 13 | Consolidación de métricas, matrices y reportes | John Rivera | Completado | `comparison_results.csv`, `formal_test_summary.md` |
-| 14 | Generación de evidencia visual para sustentación | John Rivera | Completado | `media/`, `manual_testImage_predictions/` |
-| 15 | Documentación final del repositorio para GitHub | John Rivera, Manuel Cochachin | Completado | `README.md` |
+| 13 | Consolidación de métricas formales sobre `test` | John Rivera | Completado | `comparison_results.csv`, `formal_test_summary.md` |
+| 14 | Generación de gráficas y estadísticas solo desde test formal | John Rivera | Completado | `artifacts/week5_pipeline/figuras_test_formal/` |
+| 15 | Documentación final alineada a test formal | John Rivera, Manuel Cochachin | Completado | `README.md` |
 
 ---
 
@@ -216,11 +217,11 @@ Entrenamiento de EfficientNet-B0
     ↓
 Calibración con validación
     ↓
-Evaluación sobre test
+Evaluación sobre test formal
     ↓
 Comparación de variantes
     ↓
-Generación de reportes y evidencia visual
+Generación de gráficas y estadísticas formales
 ```
 
 Flujo integral de inferencia:
@@ -268,7 +269,7 @@ Bloques implementados:
 | Bloque | Componente | Función principal |
 |---:|---|---|
 | 1 | Configuración central | Define rutas, parámetros, pesos, tamaño de imagen, umbrales y opciones de ejecución. |
-| 2 | Utilidades generales | Control de semilla, rutas, guardado de JSON y validación de entorno. |
+| 2 | Utilidades generales | Control de semilla, rutas, guardado de artefactos y validación de entorno. |
 | 3 | Lectura de `data_clean.yaml` | Carga rutas de entrenamiento, validación, prueba y nombres de clases. |
 | 4 | Auditoría de datos | Verifica separación entre `train`, `val` y `test` por identificador base. |
 | 5 | Dataset PyTorch | Construye datasets para imagen completa y ROI desde anotaciones YOLO. |
@@ -278,20 +279,19 @@ Bloques implementados:
 | 9 | Evaluación | Calcula métricas, matriz de confusión y tiempos de inferencia. |
 | 10 | YOLO | Entrena o carga el detector de región de interés. |
 | 11 | End-to-end | Evalúa imagen → YOLO ROI → EfficientNet → predicción final. |
-| 12 | Inferencia individual | Clasifica una imagen nueva y genera salida visual anotada. |
-| 13 | Artefactos | Genera tablas, reportes, figuras y evidencia visual. |
-| 14 | Prueba `testImage` | Ejecuta una validación visual adicional con imágenes organizadas por carpeta. |
+| 12 | Inferencia individual | Clasifica una imagen nueva y genera salida visual anotada opcional. |
+| 13 | Artefactos | Genera tablas, reportes formales y evidencia del test. |
+| 14 | Bloque final solo test formal | Genera PNG y CSV desde el conjunto `test` formal, sin usar `testImage`. |
 
 ---
 
 ## 9. Estructura recomendada del repositorio
 
 ```text
-Proyecto_Deteccion_Conjuntiva_v1-main/
+Proyecto_Deteccion_Conjuntiva_v1/
 │
 ├── cp_v2_semana5_pipeline_FINAL.ipynb
 ├── README.md
-├── requirements.txt
 ├── data_clean.yaml
 │
 ├── dataset_clean/
@@ -304,10 +304,6 @@ Proyecto_Deteccion_Conjuntiva_v1-main/
 │   └── test/
 │       ├── images/
 │       └── labels/
-│
-├── testImage/
-│   ├── Anemia/
-│   └── Normal/
 │
 ├── runs/
 │   └── detect/
@@ -322,20 +318,15 @@ Proyecto_Deteccion_Conjuntiva_v1-main/
 │       ├── roi_gt/
 │       ├── yolo_e2e/
 │       ├── evidence_pack/
-│       └── manual_testImage_predictions/
+│       └── figuras_test_formal/
+│           ├── grids/
+│           └── estadisticas/
 │
 └── media/
-    ├── image1.png
-    ├── image2.png
-    ├── image3.png
-    ├── image4.png
-    ├── image5.png
-    ├── image6.png
-    ├── image7.png
-    ├── image8.png
-    ├── image9.png
-    └── image10.png
+    └── imágenes seleccionadas para visualización en GitHub
 ```
+
+> `testImage/` no forma parte de la evaluación formal reportada en este README. Si existe en el proyecto, debe considerarse una carpeta auxiliar local, no una fuente de métricas principales.
 
 ---
 
@@ -364,17 +355,24 @@ Crear entorno virtual:
 python -m venv .venv
 ```
 
-Activar entorno en Windows:
+Activar entorno en Windows PowerShell:
 
-```bash
-.venv\Scripts\activate
+```powershell
+.\.venv\Scripts\activate
 ```
 
-Instalar dependencias:
+Activar entorno en Git Bash:
+
+```bash
+source .venv/Scripts/activate
+```
+
+Instalar dependencias principales:
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+python -m pip install numpy pandas matplotlib scikit-learn pillow pyyaml tqdm opencv-python ultralytics ipykernel
+python -m pip install torch torchvision torchaudio
 ```
 
 Registrar kernel para Jupyter o VS Code:
@@ -406,6 +404,21 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore", category=UserWarning)
     results = main(CFG)
 ```
+
+Después de `results = main(CFG)`, ejecutar el bloque final:
+
+```text
+BLOQUE FINAL SOLO TEST FORMAL
+```
+
+Este bloque genera únicamente:
+
+```text
+PNG de métricas y evidencia visual del test formal
+CSV de estadísticas y predicciones usadas
+```
+
+No genera HTML, Markdown ni reportes manuales de `testImage`.
 
 Carpeta principal de salida:
 
@@ -568,7 +581,7 @@ Si P(Anemia) <  umbral definido → Normal
 
 ## 18. Evaluación comparativa
 
-Evaluación realizada sobre 285 imágenes del conjunto `test`.
+Evaluación realizada sobre **285 imágenes del conjunto `test` formal**.
 
 | Variante | Entrada | Accuracy | F1 macro | Precision macro | Recall macro | Recall Anemia | Recall Normal | FN Anemia | FP Anemia | Detection rate | ms/img |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -605,96 +618,91 @@ Var2 — YOLO ROI + EfficientNet
 
 ---
 
-## 19. Gráficas y evidencia visual
+## 19. Gráficas y estadísticas del test formal
 
-Las gráficas del pipeline se incluyen en la carpeta `media/` para visualización directa en GitHub.
+Las gráficas actuales se generan únicamente desde el **test formal** mediante el bloque final del notebook. No se usa `testImage`.
 
-<img src="./media/image1.png" style="width:100%;max-width:900px" />
+Carpeta de imágenes:
 
-**Figura 1. Comparación de métricas principales sobre conjunto test.**
+```text
+artifacts/week5_pipeline/figuras_test_formal/grids/
+```
 
-<img src="./media/image2.png" style="width:100%;max-width:900px" />
+Carpeta de estadísticas:
 
-**Figura 2. Matrices de confusión de Baseline, Var1 y Var2.**
+```text
+artifacts/week5_pipeline/figuras_test_formal/estadisticas/
+```
 
-<img src="./media/image3.png" style="width:100%;max-width:900px" />
+### Figuras generadas
 
-**Figura 3. Métricas de validación del detector YOLOv8n.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/01_matriz_confusion_test_formal.png" style="width:80%;max-width:750px" />
 
-<img src="./media/image4.png" style="width:70%;max-width:650px" />
+**Figura 1. Matriz de confusión del conjunto test formal.**
 
-**Figura 4. Matriz de confusión manual sobre carpeta `testImage`.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/02_aciertos_errores_test_formal.png" style="width:80%;max-width:750px" />
 
-<img src="./media/image5.png" style="width:100%;max-width:850px" />
+**Figura 2. Resumen de aciertos y errores del test formal.**
 
-**Figura 5. Resumen de ejecución manual.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/03_distribucion_real_predicha_test_formal.png" style="width:80%;max-width:750px" />
 
-<img src="./media/image6.png" style="width:70%;max-width:550px" />
+**Figura 3. Distribución de clases reales frente a predicciones del modelo.**
 
-**Figura 6. Ejemplo de salida end-to-end: YOLO ROI + EfficientNet.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/04_roc_precision_recall_test_formal.png" style="width:100%;max-width:1000px" />
 
-<img src="./media/image7.png" style="width:100%;max-width:1000px" />
+**Figura 4. Curvas ROC y Precision-Recall del clasificador de anemia.**
 
-**Figura 7. Muestra visual mixta de predicciones.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/05_probabilidades_calibracion_test_formal.png" style="width:100%;max-width:1000px" />
 
-<img src="./media/image8.png" style="width:100%;max-width:900px" />
+**Figura 5. Distribución de probabilidades y curva de calibración.**
 
-**Figura 8. Aciertos correspondientes a la clase `Anemia`.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/06_confianza_aciertos_errores_test_formal.png" style="width:80%;max-width:850px" />
 
-<img src="./media/image9.png" style="width:100%;max-width:900px" />
+**Figura 6. Comparación de confianza entre aciertos y errores.**
 
-**Figura 9. Aciertos correspondientes a la clase `Normal`.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/07_aciertos_anemia_test_formal.png" style="width:100%;max-width:1000px" />
 
-<img src="./media/image10.png" style="width:100%;max-width:900px" />
+**Figura 7. Aciertos de la clase Anemia dentro del test formal.**
 
-**Figura 10. Errores identificados durante la evaluación visual manual.**
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/08_aciertos_normal_test_formal.png" style="width:100%;max-width:1000px" />
+
+**Figura 8. Aciertos de la clase Normal dentro del test formal.**
+
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/09_errores_modelo_test_formal.png" style="width:100%;max-width:1000px" />
+
+**Figura 9. Errores del modelo dentro del test formal.**
+
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/10_falsos_negativos_anemia_test_formal.png" style="width:100%;max-width:1000px" />
+
+**Figura 10. Falsos negativos de Anemia dentro del test formal.**
+
+<img src="./artifacts/week5_pipeline/figuras_test_formal/grids/11_muestra_mixta_test_formal.png" style="width:100%;max-width:1000px" />
+
+**Figura 11. Muestra mixta de aciertos y errores del test formal.**
+
+### Estadísticas generadas
+
+```text
+artifacts/week5_pipeline/figuras_test_formal/estadisticas/
+├── estadisticas_test_formal.csv
+├── matriz_confusion_test_formal.csv
+├── metricas_por_clase_test_formal.csv
+├── predicciones_test_formal_usadas.csv
+├── aciertos_test_formal.csv
+├── errores_test_formal.csv
+├── falsos_negativos_anemia_test_formal.csv
+├── falsos_positivos_anemia_test_formal.csv
+├── distribucion_real_predicha_test_formal.csv
+└── estadisticas_curvas_test_formal.csv
+```
+
+### Nota metodológica
+
+La carpeta `testImage` fue retirada de la documentación de resultados porque contiene una prueba manual pequeña. Para sustentar el desempeño del modelo se debe reportar el conjunto `test` formal de 285 imágenes.
 
 ---
 
-## 20. Evaluación visual con carpeta testImage
-
-El notebook incorpora una evaluación adicional usando imágenes ubicadas en:
-
-```text
-testImage/
-```
-
-La etiqueta esperada se obtiene en este orden:
-
-1. Archivo YOLO `.txt` asociado a la imagen.
-2. Nombre de carpeta (`Anemia` o `Normal`).
-
-Resumen registrado:
-
-| Métrica | Valor |
-|---|---:|
-| Imágenes evaluadas | 9 |
-| Procesadas correctamente | 9 |
-| Correctas | 7 |
-| Incorrectas | 2 |
-| Accuracy | 77.78 % |
-| Sin ROI | 0 |
-| Fallback a imagen completa | 0 |
-
-Matriz de confusión manual:
-
-```text
-Predicción modelo
-                 Anemia  Normal
-Etiqueta Anemia      2       2
-Etiqueta Normal      0       5
-```
-
-Métricas manuales por clase:
-
-| Clase | Precision | Recall | F1 |
-|---|---:|---:|---:|
-| Anemia | 100.00 % | 50.00 % | 66.67 % |
-| Normal | 71.43 % | 100.00 % | 83.33 % |
-
----
-
-## 21. Artefactos generados
+## 20. Artefactos generados
 
 ```text
 artifacts/week5_pipeline/
@@ -716,32 +724,47 @@ artifacts/week5_pipeline/
 │   └── metrics_test.json
 │
 ├── yolo_e2e/
+│   ├── e2e_test_predictions.csv
 │   ├── metrics_test.json
 │   ├── calibration.json
-│   └── threshold.json
+│   ├── threshold.json
+│   └── e2e_calibration.pt
 │
 ├── evidence_pack/
 │   └── 08_sample_predictions/
 │       ├── sample_predictions.csv
 │       └── *.png
 │
-└── manual_testImage_predictions/
-    ├── consolidado_tesis.md
-    ├── consolidado_tesis.json
-    ├── consolidado_tesis.csv
-    ├── errores_modelo.csv
-    ├── aciertos_modelo.csv
-    ├── report/
-    │   └── reporte_visual_tesis.html
+└── figuras_test_formal/
     ├── grids/
-    ├── annotated/
-    ├── crops/
-    └── panels/
+    │   ├── 01_matriz_confusion_test_formal.png
+    │   ├── 02_aciertos_errores_test_formal.png
+    │   ├── 03_distribucion_real_predicha_test_formal.png
+    │   ├── 04_roc_precision_recall_test_formal.png
+    │   ├── 05_probabilidades_calibracion_test_formal.png
+    │   ├── 06_confianza_aciertos_errores_test_formal.png
+    │   ├── 07_aciertos_anemia_test_formal.png
+    │   ├── 08_aciertos_normal_test_formal.png
+    │   ├── 09_errores_modelo_test_formal.png
+    │   ├── 10_falsos_negativos_anemia_test_formal.png
+    │   └── 11_muestra_mixta_test_formal.png
+    │
+    └── estadisticas/
+        ├── estadisticas_test_formal.csv
+        ├── matriz_confusion_test_formal.csv
+        ├── metricas_por_clase_test_formal.csv
+        ├── predicciones_test_formal_usadas.csv
+        ├── aciertos_test_formal.csv
+        ├── errores_test_formal.csv
+        ├── falsos_negativos_anemia_test_formal.csv
+        ├── falsos_positivos_anemia_test_formal.csv
+        ├── distribucion_real_predicha_test_formal.csv
+        └── estadisticas_curvas_test_formal.csv
 ```
 
 ---
 
-## 22. Reproducibilidad
+## 21. Reproducibilidad
 
 Semilla global:
 
@@ -766,11 +789,12 @@ Archivos de trazabilidad:
 artifacts/week5_pipeline/config_used.json
 artifacts/week5_pipeline/pipeline_progress.md
 artifacts/week5_pipeline/pipeline_progress.json
+artifacts/week5_pipeline/figuras_test_formal/estadisticas/predicciones_test_formal_usadas.csv
 ```
 
 ---
 
-## 23. Inferencia individual
+## 22. Inferencia individual
 
 Función principal:
 
@@ -816,22 +840,21 @@ Flujo interno:
 
 ---
 
-## 24. Archivos recomendados para GitHub
+## 23. Archivos recomendados para GitHub
 
 Versionar:
 
 ```text
 cp_v2_semana5_pipeline_FINAL.ipynb
 README.md
-requirements.txt
 data_clean.yaml
 media/
 artifacts/week5_pipeline/comparison_results.csv
 artifacts/week5_pipeline/formal_test_summary.md
 artifacts/week5_pipeline/test_comparison_summary.png
 artifacts/week5_pipeline/pipeline_progress.md
-artifacts/week5_pipeline/manual_testImage_predictions/consolidado_tesis.md
-artifacts/week5_pipeline/manual_testImage_predictions/report/reporte_visual_tesis.html
+artifacts/week5_pipeline/figuras_test_formal/grids/*.png
+artifacts/week5_pipeline/figuras_test_formal/estadisticas/*.csv
 ```
 
 No versionar archivos pesados o locales:
@@ -871,6 +894,11 @@ valid/
 val/
 test/
 
+# Pruebas manuales locales no usadas como resultado formal
+testImage/
+manual_testImage_predictions/
+manual_testImage_simple/
+
 # Cachés
 *.cache
 *.tmp
@@ -882,7 +910,7 @@ Thumbs.db
 
 ---
 
-## 25. Resultado consolidado
+## 24. Resultado consolidado
 
 El repositorio presenta un pipeline integral de clasificación de imágenes de conjuntiva palpebral con tres variantes comparables. La variante `Var1` registra el mayor desempeño global en accuracy y F1 macro, mientras que la variante `Var2` representa el flujo automatizado basado en detección de ROI con YOLOv8n y clasificación con EfficientNet-B0.
 
@@ -896,9 +924,23 @@ Menor FN Anemia:            Var2 = 30
 Pipeline integral completo: Var2 = YOLO ROI + EfficientNet
 ```
 
+Interpretación objetiva:
+
+```text
+Var1 es la mejor variante para desempeño global porque utiliza ROI real desde etiqueta.
+Var2 es la variante más representativa del flujo real automatizado, porque usa YOLO para detectar la ROI.
+Para un sistema de tamizaje, el indicador más sensible es el recall de Anemia y la reducción de falsos negativos.
+```
+
+Nota clínica:
+
+```text
+Este sistema es un apoyo experimental de visión por computadora. No reemplaza una prueba clínica de hemoglobina ni constituye diagnóstico médico independiente.
+```
+
 ---
 
-## 26. Referencia rápida
+## 25. Referencia rápida
 
 | Recurso | Ruta |
 |---|---|
@@ -906,7 +948,9 @@ Pipeline integral completo: Var2 = YOLO ROI + EfficientNet
 | Dataset limpio | `dataset_clean/` |
 | Configuración de datos | `data_clean.yaml` |
 | Resultados principales | `artifacts/week5_pipeline/` |
+| Predicciones formales E2E | `artifacts/week5_pipeline/yolo_e2e/e2e_test_predictions.csv` |
+| Gráficas del test formal | `artifacts/week5_pipeline/figuras_test_formal/grids/` |
+| Estadísticas del test formal | `artifacts/week5_pipeline/figuras_test_formal/estadisticas/` |
 | Pesos YOLO | `runs/detect/week5_yolo_*/weights/best.pt` |
 | Pesos clasificador ROI | `artifacts/week5_pipeline/roi_gt/best.pt` |
-| Reporte visual | `artifacts/week5_pipeline/manual_testImage_predictions/report/reporte_visual_tesis.html` |
-| Evidencia para README | `media/` |
+| Evidencia para README | `artifacts/week5_pipeline/figuras_test_formal/grids/` |
