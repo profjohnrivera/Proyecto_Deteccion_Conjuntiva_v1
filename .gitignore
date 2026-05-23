@@ -44,3 +44,33 @@ runs/
 
 # Pruebas manuales/testImage: no van en el commit formal
 artifacts/**/manual_testImage_simple/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.dll
+.ipynb_checkpoints/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Caches de dataset / YOLO
+*.cache
+dataset_clean/**/labels.cache
+
+# Salidas automaticas de entrenamiento
+runs/
+
+# Pesos/modelos entrenados: no subir a Git normal
+*.pt
+
+# Pruebas manuales/testImage: no van en el commit formal
+artifacts/**/manual_testImage_simple/
