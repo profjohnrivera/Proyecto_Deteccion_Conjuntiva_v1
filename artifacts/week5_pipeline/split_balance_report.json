@@ -1,0 +1,71 @@
+{
+  "created_at_utc": "2026-05-30T01:35:41+00:00",
+  "class_names": {
+    "0": "Anemia",
+    "1": "Normal"
+  },
+  "splits": {
+    "train": {
+      "images_total": 2053,
+      "images_labeled": 2053,
+      "missing_label_count": 0,
+      "empty_label_count": 0,
+      "multi_object_label_count": 0,
+      "image_distribution": {
+        "0": {
+          "class_name": "Anemia",
+          "count": 1029,
+          "pct": 0.501218
+        },
+        "1": {
+          "class_name": "Normal",
+          "count": 1024,
+          "pct": 0.498782
+        }
+      }
+    },
+    "val": {
+      "images_total": 251,
+      "images_labeled": 251,
+      "missing_label_count": 0,
+      "empty_label_count": 0,
+      "multi_object_label_count": 0,
+      "image_distribution": {
+        "0": {
+          "class_name": "Anemia",
+          "count": 120,
+          "pct": 0.478088
+        },
+        "1": {
+          "class_name": "Normal",
+          "count": 131,
+          "pct": 0.521912
+        }
+      }
+    },
+    "test": {
+      "images_total": 285,
+      "images_labeled": 285,
+      "missing_label_count": 0,
+      "empty_label_count": 0,
+      "multi_object_label_count": 0,
+      "image_distribution": {
+        "0": {
+          "class_name": "Anemia",
+          "count": 141,
+          "pct": 0.494737
+        },
+        "1": {
+          "class_name": "Normal",
+          "count": 144,
+          "pct": 0.505263
+        }
+      }
+    }
+  },
+  "max_class_pct_drift_vs_train": {
+    "val": 0.02313,
+    "test": 0.006481
+  },
+  "limitation": "Balance por clase; no equivale a split grupal por paciente sin patient_id."
+}

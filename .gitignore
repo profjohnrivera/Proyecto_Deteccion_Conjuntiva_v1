@@ -1,0 +1,25 @@
+# Entornos locales
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Datasets locales pesados
+dataset_clean/
+testImage/
+
+# Runs de entrenamiento
+runs/
+
+# Pesos/modelos pesados
+*.pt
+*.pth
+*.onnx
+
+# Cachés
+*.cache
+.ipynb_checkpoints/
+
+# Sistema
+.DS_Store
+Thumbs.db

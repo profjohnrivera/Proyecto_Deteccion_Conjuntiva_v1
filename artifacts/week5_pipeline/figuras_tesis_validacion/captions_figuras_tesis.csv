@@ -1,0 +1,9 @@
+figura,uso,mensaje
+01_distribucion_clases_por_split_tesis.png,"Demostrar que train, validation y test contienen ambas clases.",El dataset mantiene representación de Anemia y Normal en todos los subconjuntos.
+02_porcentaje_clases_por_split_tesis.png,Sustentar balance estadístico entre Anemia y Normal.,"Las proporciones son cercanas entre clases, reduciendo riesgo de sesgo por clase dominante."
+03_auditoria_no_leakage_tesis.png,"Mostrar que no se detectó repetición de imágenes entre train, val y test.",El resultado esperado es cero coincidencias. Esto fortalece la validez del test formal.
+04_metricas_clave_por_variante_tesis.png,"Comparar Baseline, Var1 y Var2 sin sobrecargar la gráfica.",La comparación separa rendimiento global y sensibilidad sobre Anemia.
+05_heatmap_metricas_por_variante_tesis.png,Mostrar todas las métricas principales en una vista compacta.,Permite identificar qué variante prioriza desempeño global y cuál prioriza sensibilidad por clase.
+06_matriz_confusion_test_formal_tesis.png,Explicar errores críticos del modelo en el test formal.,"En tamizaje, los falsos negativos de Anemia son el error más delicado."
+07_resumen_errores_tamizaje_tesis.png,Resumir los errores principales sin saturar la exposición.,El análisis no solo mira accuracy; prioriza el riesgo de falsos negativos.
+08_resumen_validacion_metodologica_tesis.png,Abrir o cerrar la exposición con una síntesis metodológica.,"La validación fortalece la trazabilidad experimental, pero no reemplaza una validación clínica."

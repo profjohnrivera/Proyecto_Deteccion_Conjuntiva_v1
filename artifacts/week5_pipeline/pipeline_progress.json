@@ -1,0 +1,128 @@
+{
+  "total_steps": 11,
+  "completed_steps": 11,
+  "total_elapsed_seconds": 3164.387,
+  "records": [
+    {
+      "step": 1,
+      "total_steps": 11,
+      "title": "Configuración y validación de entorno",
+      "objective": "Confirmar .venv, CUDA, rutas, data_clean.yaml y parámetros activos.",
+      "expected_output": "config_used.json + entorno validado",
+      "status": "OK",
+      "elapsed_seconds": 0.0,
+      "finished_at": "2026-06-05 19:57:05",
+      "error": null
+    },
+    {
+      "step": 2,
+      "total_steps": 11,
+      "title": "Selección de dispositivo",
+      "objective": "Detectar CUDA/CPU antes de entrenar.",
+      "expected_output": "device=cuda si PyTorch CUDA está activo",
+      "status": "OK",
+      "elapsed_seconds": 0.0,
+      "finished_at": "2026-06-05 19:57:05",
+      "error": null
+    },
+    {
+      "step": 3,
+      "total_steps": 11,
+      "title": "Carga de dataset limpio",
+      "objective": "Resolver train/val/test desde data_clean.yaml.",
+      "expected_output": "rutas train/val/test + clases Anemia/Normal",
+      "status": "OK",
+      "elapsed_seconds": 0.0,
+      "finished_at": "2026-06-05 19:57:05",
+      "error": null
+    },
+    {
+      "step": 4,
+      "total_steps": 11,
+      "title": "Auditoría de leakage",
+      "objective": "Verificar que no haya imágenes base repetidas entre train, val y test.",
+      "expected_output": "split_leakage_audit.json con overlaps en 0",
+      "status": "OK",
+      "elapsed_seconds": 0.034,
+      "finished_at": "2026-06-05 19:57:05",
+      "error": null
+    },
+    {
+      "step": 5,
+      "total_steps": 11,
+      "title": "Transformaciones train/eval",
+      "objective": "Crear augmentación solo para train y transformaciones limpias para val/test.",
+      "expected_output": "train_tf + eval_tf",
+      "status": "OK",
+      "elapsed_seconds": 0.001,
+      "finished_at": "2026-06-05 19:57:05",
+      "error": null
+    },
+    {
+      "step": 6,
+      "total_steps": 11,
+      "title": "YOLO ROI detector/localizador",
+      "objective": "Entrenar o cargar YOLO para obtener ROI. En quick mode usa configuración liviana para evitar OOM.",
+      "expected_output": "runs/detect/week5_yolo_*/weights/best.pt",
+      "status": "OK",
+      "elapsed_seconds": 1012.691,
+      "finished_at": "2026-06-05 20:13:58",
+      "error": null
+    },
+    {
+      "step": 7,
+      "total_steps": 11,
+      "title": "Baseline: EfficientNet con imagen completa",
+      "objective": "Ejecutar experimento base para comparación A/B.",
+      "expected_output": "baseline_full/best.pt + metrics_test.json",
+      "status": "OK",
+      "elapsed_seconds": 1207.321,
+      "finished_at": "2026-06-05 20:34:05",
+      "error": null
+    },
+    {
+      "step": 8,
+      "total_steps": 11,
+      "title": "Var1: EfficientNet con ROI real desde label",
+      "objective": "Evaluar el cambio único de imagen completa a crop ROI usando bbox real.",
+      "expected_output": "roi_gt/best.pt + metrics_test.json",
+      "status": "OK",
+      "elapsed_seconds": 911.472,
+      "finished_at": "2026-06-05 20:49:16",
+      "error": null
+    },
+    {
+      "step": 9,
+      "total_steps": 11,
+      "title": "Var2: YOLO ROI + clasificador ROI",
+      "objective": "Evaluar pipeline completo: imagen → YOLO ROI → EfficientNet → clase final.",
+      "expected_output": "yolo_e2e/metrics_test.json + threshold elegido con val",
+      "status": "OK",
+      "elapsed_seconds": 30.264,
+      "finished_at": "2026-06-05 20:49:47",
+      "error": null
+    },
+    {
+      "step": 10,
+      "total_steps": 11,
+      "title": "Muestra visual de salida end-to-end",
+      "objective": "Mostrar evidencia real: imagen → YOLO ROI → EfficientNet → predicción.",
+      "expected_output": "evidence_pack/08_sample_predictions/*.png + sample_predictions.csv",
+      "status": "OK",
+      "elapsed_seconds": 2.34,
+      "finished_at": "2026-06-05 20:49:49",
+      "error": null
+    },
+    {
+      "step": 11,
+      "total_steps": 11,
+      "title": "Tabla comparable, README, bitácora y evidence_pack",
+      "objective": "Consolidar Baseline / Var1 / Var2 como entregable Semana 5 digno de tesis.",
+      "expected_output": "comparison_results.csv + README_semana5.md + evidence_pack/",
+      "status": "OK",
+      "elapsed_seconds": 0.243,
+      "finished_at": "2026-06-05 20:49:49",
+      "error": null
+    }
+  ]
+}

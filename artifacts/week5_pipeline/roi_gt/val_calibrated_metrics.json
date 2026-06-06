@@ -1,0 +1,31 @@
+{
+  "accuracy": 0.7689243027888446,
+  "f1_macro": 0.7637915368639667,
+  "precision_macro": 0.781135655237837,
+  "recall_macro": 0.7639312977099237,
+  "recall_anemia": 0.65,
+  "recall_normal": 0.8778625954198473,
+  "fp_anemia_normal_as_anemia": 16,
+  "fn_anemia_anemia_as_normal": 42,
+  "tp_anemia": 78,
+  "tn_normal": 115,
+  "confusion_matrix": [
+    [
+      78,
+      42
+    ],
+    [
+      16,
+      115
+    ]
+  ],
+  "elapsed_s": 4.824896699981764,
+  "ms_per_image": 19.222696015863605,
+  "detection_failures": 0,
+  "detection_rate": 1.0,
+  "support_total": 251,
+  "class_names": {
+    "0": "Anemia",
+    "1": "Normal"
+  }
+}

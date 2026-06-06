@@ -1,0 +1,25 @@
+{
+  "created_at_utc": "2026-05-30T01:35:41+00:00",
+  "method": "Comparación por identificador base de imagen; elimina sufijo Roboflow .rf.<hash>.",
+  "split_counts": {
+    "train": 590,
+    "val": 73,
+    "test": 75
+  },
+  "overlaps": {
+    "train_vs_val": {
+      "count": 0,
+      "examples": []
+    },
+    "train_vs_test": {
+      "count": 0,
+      "examples": []
+    },
+    "val_vs_test": {
+      "count": 0,
+      "examples": []
+    }
+  },
+  "no_base_image_leakage": true,
+  "limitation": "No certifica split grupal por paciente si el dataset no contiene patient_id."
+}

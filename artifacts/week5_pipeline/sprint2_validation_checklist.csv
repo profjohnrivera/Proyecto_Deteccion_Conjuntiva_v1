@@ -1,0 +1,6 @@
+item,estado,aprobado,evidencia,lectura_objetiva
+Split correcto,OK_CON_LIMITACION,True,split_leakage_audit_final.json + split_balance_report.json/csv,Sin leakage por imagen base y con balance razonable. No certifica split grupal por paciente sin patient_id.
+Fit solo en train,OK_CON_LIMITACION,False,build_transforms(CFG): eval_tf sin Random*,"Validación/test no deben tener augmentación aleatoria ni ajuste de parámetros. Si no existe build_transforms, queda como limitación."
+Seeds fijadas y mismo protocolo que Semana 5,OK,True,CFG.seed + CFG.protocol_version + config_used.json,seed=42; protocol_version=semana6_sprint2_validation_fallback; fallback_mode=False
+Sin cambios de data entre baseline y evaluación final,FALLA,False,dataset_fingerprint_before.json vs dataset_fingerprint_after.json,"Si falta fingerprint_before o cambia el hash, no puedes defender comparación limpia."
+Logs completos,OK,True,"config_used.json, comparison_results.csv, metrics_test.json, figuras y CSV del test formal",metrics_test_json=0; png_formales=11; csv_formales=10; missing=0

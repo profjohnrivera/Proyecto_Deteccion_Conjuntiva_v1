@@ -1,0 +1,9 @@
+{
+  "phase": "after",
+  "created_at_utc": "2026-05-30T01:35:41+00:00",
+  "protocol_version": "semana6_sprint2_validation_fallback",
+  "data_yaml": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\data_clean.yaml",
+  "aggregate_sha256": "24dc44b50034a0dda5410d9f22d1a29fca9029d3ce4b7975fe1d70e0fb611790",
+  "total_files": 5178,
+  "method": "SHA256 agregado sobre rutas relativas, tamaños y SHA256 de imágenes/labels YOLO."
+}

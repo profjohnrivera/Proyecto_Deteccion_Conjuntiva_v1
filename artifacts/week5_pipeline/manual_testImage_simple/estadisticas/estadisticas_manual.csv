@@ -1,0 +1,23 @@
+indicador,valor
+Total de imágenes evaluadas,9.0
+Procesadas OK,9.0
+Con etiqueta esperada,9.0
+Correctas,6.0
+Incorrectas,3.0
+Accuracy manual (%),66.67
+Error manual (%),33.33
+Errores de ejecución,0.0
+Sin ROI,0.0
+Fallback a imagen completa,0.0
+Fallback rate (%),0.0
+TP Anemia,1.0
+FN Anemia,3.0
+FP Anemia,0.0
+TN Anemia,5.0
+Recall Anemia (%),25.0
+Precision Anemia (%),100.0
+F1 Anemia (%),40.0
+Macro Precision (%),81.25
+Macro Recall (%),62.5
+Macro F1 (%),58.46
+Tiempo total inferencia (s),9.0959

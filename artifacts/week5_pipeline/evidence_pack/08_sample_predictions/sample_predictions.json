@@ -1,0 +1,90 @@
+[
+  {
+    "sample_id": 1,
+    "image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\dataset_clean\\test\\images\\104_png.rf.09385316752ae2230e31961fd5a03f52.jpg",
+    "true_label": 0,
+    "true_name": "Anemia",
+    "status": "OK",
+    "prediction_id": 1,
+    "prediction_name": "Normal",
+    "prob_anemia": 0.04300401732325554,
+    "prob_normal": 0.9569960236549377,
+    "threshold_anemia": 0.5500000000000003,
+    "yolo_conf": 0.2232915461063385,
+    "bbox_xyxy": [
+      560,
+      1037,
+      934,
+      1179
+    ],
+    "correct": false,
+    "output_image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\artifacts\\week5_pipeline\\evidence_pack\\08_sample_predictions\\sample_01_true_Anemia_104_png.rf.09385316752ae2230e31961fd5a03f52.png",
+    "message": ""
+  },
+  {
+    "sample_id": 2,
+    "image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\dataset_clean\\test\\images\\104_png.rf.9fe670b02ab3e4b9e796743b0877948b.jpg",
+    "true_label": 0,
+    "true_name": "Anemia",
+    "status": "OK",
+    "prediction_id": 1,
+    "prediction_name": "Normal",
+    "prob_anemia": 0.04672837629914284,
+    "prob_normal": 0.9532716274261475,
+    "threshold_anemia": 0.5500000000000003,
+    "yolo_conf": 0.22574368119239807,
+    "bbox_xyxy": [
+      559,
+      1035,
+      931,
+      1178
+    ],
+    "correct": false,
+    "output_image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\artifacts\\week5_pipeline\\evidence_pack\\08_sample_predictions\\sample_02_true_Anemia_104_png.rf.9fe670b02ab3e4b9e796743b0877948b.png",
+    "message": ""
+  },
+  {
+    "sample_id": 3,
+    "image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\dataset_clean\\test\\images\\10_png.rf.44e757574c6aa5d39c383ca15bf1b463.jpg",
+    "true_label": 1,
+    "true_name": "Normal",
+    "status": "OK",
+    "prediction_id": 1,
+    "prediction_name": "Normal",
+    "prob_anemia": 0.1576940417289734,
+    "prob_normal": 0.8423060178756714,
+    "threshold_anemia": 0.5500000000000003,
+    "yolo_conf": 0.22880439460277557,
+    "bbox_xyxy": [
+      978,
+      942,
+      1284,
+      1085
+    ],
+    "correct": true,
+    "output_image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\artifacts\\week5_pipeline\\evidence_pack\\08_sample_predictions\\sample_03_true_Normal_10_png.rf.44e757574c6aa5d39c383ca15bf1b463.png",
+    "message": ""
+  },
+  {
+    "sample_id": 4,
+    "image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\dataset_clean\\test\\images\\10_png.rf.481d60386b20fedcbf73c0e0bcba208f.jpg",
+    "true_label": 1,
+    "true_name": "Normal",
+    "status": "OK",
+    "prediction_id": 1,
+    "prediction_name": "Normal",
+    "prob_anemia": 0.1534324735403061,
+    "prob_normal": 0.8465675115585327,
+    "threshold_anemia": 0.5500000000000003,
+    "yolo_conf": 0.2354203164577484,
+    "bbox_xyxy": [
+      974,
+      942,
+      1281,
+      1087
+    ],
+    "correct": true,
+    "output_image": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\artifacts\\week5_pipeline\\evidence_pack\\08_sample_predictions\\sample_04_true_Normal_10_png.rf.481d60386b20fedcbf73c0e0bcba208f.png",
+    "message": ""
+  }
+]

@@ -1,0 +1,7 @@
+split,class_id,class_name,count,pct,images_total,images_labeled,missing_label_count,empty_label_count,multi_object_label_count
+train,0,Anemia,1029,0.501218,2053,2053,0,0,0
+train,1,Normal,1024,0.498782,2053,2053,0,0,0
+val,0,Anemia,120,0.478088,251,251,0,0,0
+val,1,Normal,131,0.521912,251,251,0,0,0
+test,0,Anemia,141,0.494737,285,285,0,0,0
+test,1,Normal,144,0.505263,285,285,0,0,0

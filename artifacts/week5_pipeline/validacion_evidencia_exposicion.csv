@@ -1,0 +1,5 @@
+evidencia,estado,cantidad,interpretacion
+comparison_results.csv,OK,1,Comparación de variantes disponible
+CSV test formal,OK,10,Estadísticas formales disponibles
+PNG test formal,OK,11,Figuras formales disponibles
+JSON métricas,OK,6,Métricas JSON por experimento encontradas

@@ -1,0 +1,64 @@
+{
+  "created_at_utc": "2026-05-30T01:35:41+00:00",
+  "overall_status": "FALLA",
+  "fallback_mode": false,
+  "protocol_version": "semana6_sprint2_validation_fallback",
+  "seed": 42,
+  "dataset_fingerprint_before": null,
+  "dataset_fingerprint_after": "24dc44b50034a0dda5410d9f22d1a29fca9029d3ce4b7975fe1d70e0fb611790",
+  "dataset_unchanged_between_before_after": false,
+  "no_base_image_leakage": true,
+  "split_has_both_classes": true,
+  "max_class_pct_drift_vs_train": {
+    "val": 0.02313,
+    "test": 0.006481
+  },
+  "eval_transform_clean": null,
+  "eval_transform_repr": "No existe build_transforms para inspeccionar. Ejecuta las celdas principales para validar este punto.",
+  "logs": {
+    "missing_required": [],
+    "metrics_test_json_count": 0,
+    "formal_png_count": 11,
+    "formal_csv_count": 10,
+    "comparison_metrics_ok": true
+  },
+  "validation_figures_dir": "C:\\Users\\JohnR\\Documents\\GitHub\\Proyecto_Deteccion_Conjuntiva_v1\\artifacts\\week5_pipeline\\validacion_sprint2_figuras",
+  "methodological_limitation": "No se puede afirmar split grupal por paciente si el dataset no contiene patient_id. Esta auditoría defiende no-leakage por imagen base, no por paciente.",
+  "items": [
+    {
+      "item": "Split correcto",
+      "estado": "OK_CON_LIMITACION",
+      "aprobado": true,
+      "evidencia": "split_leakage_audit_final.json + split_balance_report.json/csv",
+      "lectura_objetiva": "Sin leakage por imagen base y con balance razonable. No certifica split grupal por paciente sin patient_id."
+    },
+    {
+      "item": "Fit solo en train",
+      "estado": "OK_CON_LIMITACION",
+      "aprobado": false,
+      "evidencia": "build_transforms(CFG): eval_tf sin Random*",
+      "lectura_objetiva": "Validación/test no deben tener augmentación aleatoria ni ajuste de parámetros. Si no existe build_transforms, queda como limitación."
+    },
+    {
+      "item": "Seeds fijadas y mismo protocolo que Semana 5",
+      "estado": "OK",
+      "aprobado": true,
+      "evidencia": "CFG.seed + CFG.protocol_version + config_used.json",
+      "lectura_objetiva": "seed=42; protocol_version=semana6_sprint2_validation_fallback; fallback_mode=False"
+    },
+    {
+      "item": "Sin cambios de data entre baseline y evaluación final",
+      "estado": "FALLA",
+      "aprobado": false,
+      "evidencia": "dataset_fingerprint_before.json vs dataset_fingerprint_after.json",
+      "lectura_objetiva": "Si falta fingerprint_before o cambia el hash, no puedes defender comparación limpia."
+    },
+    {
+      "item": "Logs completos",
+      "estado": "OK",
+      "aprobado": true,
+      "evidencia": "config_used.json, comparison_results.csv, metrics_test.json, figuras y CSV del test formal",
+      "lectura_objetiva": "metrics_test_json=0; png_formales=11; csv_formales=10; missing=0"
+    }
+  ]
+}
